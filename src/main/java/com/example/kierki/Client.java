@@ -9,29 +9,43 @@ public class Client {
 
     private String nickname;
     LoginController loginController;
-    RoomsController roomsController;
-    GameController gameController;
+//    RoomsController roomsController;
+//    GameController gameController;
     Stage stage;
 
-    public Client(Stage stage, LoginController loginController, RoomsController roomsController, GameController gameController) {
+    ObjectInputStream in;
+    ObjectOutputStream out;
+    Socket clientSocket;
+
+    public int clientId;
+
+    public Client(Stage stage, LoginController loginController) {
         this.stage = stage;
         this.loginController = loginController;
-        this.roomsController = roomsController;
-        this.gameController = gameController;
+//        this.roomsController = roomsController;
+//        this.gameController = gameController;
     }
-
     public void setNickname(String nickname) {
         this.nickname = nickname;
+        start();
+    }
+    public void start(){
+        connectToServer();
     }
 
-    public static void main(String[] args) {
-        try(Socket clientSocket = new Socket("localhost", 8888)) {
-            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+    private void connectToServer() {
+        try {
+            clientSocket = new Socket("localhost", 8888);
+            in = new ObjectInputStream(clientSocket.getInputStream());
+            out = new ObjectOutputStream(clientSocket.getOutputStream());
 
-
+            clientId = in.readInt();
+            out.writeUTF(nickname);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
     }
 }

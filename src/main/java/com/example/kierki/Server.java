@@ -46,9 +46,12 @@ public class Server {
         private final Socket socket;
         private final int clientId;
 
+        private String nickname;
+
         public ClientHandler(Socket socket, int clientId) {
             this.socket = socket;
             this.clientId = clientId;
+            this.nickname = "";
         }
 
         @Override
@@ -59,6 +62,12 @@ public class Server {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
                 out.writeInt(clientId);
+                out.flush();
+                nickname = in.readUTF();
+                System.out.println(nickname);
+                while(true){
+
+                }
 
 
             } catch (IOException e) {

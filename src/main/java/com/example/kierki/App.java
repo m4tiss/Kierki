@@ -35,10 +35,15 @@ public class App extends Application {
 //        gameLoader.load();
 //        GameController gameController = gameLoader.getController();
 //
-        Client client = new Client(stage,loginController,roomsController,gameController);
+        Client client = new Client(stage,loginController);
 
         stage.setTitle("Kierki");
+
         loginController.setClient(client);
+//        roomsController.setClient(client);
+//        gameController.setClient(client);
+
+
         stage.setScene(login);
         stage.show();
     }
