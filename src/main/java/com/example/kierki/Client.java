@@ -1,46 +1,37 @@
 package com.example.kierki;
-
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import static java.lang.Thread.sleep;
-
-public class Client extends Application {
+public class Client {
 
     private String nickname;
+    LoginController loginController;
+    RoomsController roomsController;
+    GameController gameController;
+    Stage stage;
 
-    public Client() {
-        nickname = "";
+    public Client(Stage stage, LoginController loginController, RoomsController roomsController, GameController gameController) {
+        this.stage = stage;
+        this.loginController = loginController;
+        this.roomsController = roomsController;
+        this.gameController = gameController;
     }
 
-    public void display(int das) {
-        System.out.println(das);
-    }
-
-    public void setNickname(String nick) {
-        nickname = nick;
-    }
-
-    @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Client.class.getResource("nicknamePanel.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
-
-        ClientController controller = fxmlLoader.getController();
-        controller.setStage(stage);
-
-        stage.setTitle("Kierki");
-        controller.setClient(this);
-        stage.setScene(scene);
-        stage.show();
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public static void main(String[] args) {
-        launch();
+        try(Socket clientSocket = new Socket("localhost", 8888)) {
+            ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
