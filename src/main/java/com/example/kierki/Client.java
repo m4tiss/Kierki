@@ -9,6 +9,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+
+import java.util.concurrent.*;
 public class Client {
 
     private static final int PORT = 8888;
@@ -22,6 +24,8 @@ public class Client {
     ObjectInputStream in;
     ObjectOutputStream out;
     Socket clientSocket;
+
+    Room chosenRoom;
     public int clientId;
 
     public Client(Stage stage, LoginController loginController, RoomsController roomsController, FXMLLoader roomsLoader, GameController gameController, FXMLLoader gameLoader) {
@@ -31,6 +35,7 @@ public class Client {
         this.roomsController = roomsController;
         this.gameLoader = gameLoader;
         this.gameController = gameController;
+        chosenRoom = new Room("MyRoom");
     }
 
     public void setNickname(String nickname) throws IOException, ClassNotFoundException {
@@ -59,28 +64,32 @@ public class Client {
     private void takeRooms() throws IOException, ClassNotFoundException {
         int amountRooms = in.readInt();
         for (int i = 0; i < amountRooms; i++) {
-            int key =  in.readInt();
+            Integer key = (Integer) in.readObject();
             Room value = (Room) in.readObject();
             roomsController.addRoom(key,value.getRoomName(), value.getAmountOfPlayers());
         }
     }
 
-    public void sendChosenRoom(int room) throws IOException {
-        out.writeInt(room);
+    public void sendChosenRoom(Integer room) throws IOException, ClassNotFoundException {
+        out.writeObject(room);
         out.flush();
+        out.reset();
+        chosenRoom =  (Room) in.readObject();
     }
     public void joinToRoom() {
         Scene gameScene = new Scene(gameLoader.getRoot(), 1280, 720);
         stage.setScene(gameScene);
-
-//        Game game = new Game(stage, gameController, gameLoader);
+        Game game = new Game(stage, gameController, gameLoader,chosenRoom);
+        game.updatePlayersInRoom();
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        ReceiverClient receiver = new ReceiverClient(executorService, in, out, clientSocket,chosenRoom,gameController);
+        executorService.schedule(receiver, 0, TimeUnit.SECONDS);
     }
 
     public void start() throws IOException, ClassNotFoundException {
         connectToServer();
         takeIDSendNickname();
         takeRooms();
-
     }
 
     public static void main(String[] args) {

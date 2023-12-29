@@ -13,20 +13,20 @@ public class RoomsController {
     @FXML
     private FlowPane roomsBox;
 
-    public void addRoom(int key,String roomName, int amountPlayers) {
+    public void addRoom(Integer key,String roomName, int amountPlayers) {
         Button roomButton = new Button();
         roomButton.setText("Pokój: "+roomName+"           "+"Graczy: "+amountPlayers+"/4");
         roomButton.setMinHeight(80);
         roomButton.setMinWidth(60);
         roomButton.setOnAction(event -> {
             System.out.println("Kliknięto pokój: " + roomName);
-            client.joinToRoom();
             System.out.println("Key: " + key);
             try {
                 client.sendChosenRoom(key);
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+            client.joinToRoom();
         });
         roomsBox.getChildren().add(roomButton);
     }

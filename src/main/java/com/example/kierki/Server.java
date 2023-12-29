@@ -76,14 +76,27 @@ public class Server {
             out.flush();
 
             for (Map.Entry<Integer, Room> entry : entrySet) {
-                out.writeInt(entry.getKey());
+                out.writeObject(entry.getKey());
                 out.writeObject(entry.getValue());
                 out.flush();
             }
         }
-        private void waitOnRoom() throws IOException {
-            chosenRoom = in.readInt();
-            System.out.println(chosenRoom);
+        private void waitOnRoom() throws IOException, ClassNotFoundException {
+            chosenRoom = (Integer)in.readObject();
+            rooms.get(chosenRoom).addPlayer(nickname);
+            Room toSend = rooms.get(chosenRoom);
+            out.reset();
+            out.writeObject(toSend);
+            out.flush();
+            for (ObjectOutputStream outClient : outputStreams.values()) {
+                if(outClient!=null){
+                    if(outClient!=out){
+                        outClient.writeInt(chosenRoom);
+                        outClient.flush();
+                    }
+                }
+            }
+
         }
         @Override
         public void run() {
@@ -102,6 +115,8 @@ public class Server {
 
 
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }

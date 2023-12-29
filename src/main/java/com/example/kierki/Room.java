@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Room implements Serializable {
-    private String roomName;
     private int amountOfPlayers;
+    private String roomName;
     private ArrayList<String> players;
     private boolean gameInProgress;
 
@@ -13,13 +13,19 @@ public class Room implements Serializable {
         this.roomName = roomName;
         this.players = new ArrayList<>();
         this.gameInProgress = false;
-        this.amountOfPlayers=0;
+        this.amountOfPlayers = 0;
     }
 
     public String getRoomName() {
         return roomName;
     }
-    public int getAmountOfPlayers(){
+
+    public int getAmountOfPlayers() {
         return amountOfPlayers;
+    }
+
+    public void addPlayer(String nickname) {
+        players.add(nickname);
+        amountOfPlayers++;
     }
 }
