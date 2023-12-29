@@ -3,6 +3,8 @@ package com.example.kierki;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.ArrayList;
@@ -64,11 +66,27 @@ public class Server {
             out.flush();
             nickname = in.readUTF();
         }
-        private void sendRooms() throws IOException {
-            out.writeInt(rooms.size());
-            out.flush();
-        }
+//        private void sendRooms() throws IOException {
+////            out.writeInt(rooms.size());
+////            out.flush();
+////            for(int i = 0;i<rooms.size();i++){
+////                out.writeObject(rooms.get(i));
+////            }
+//
+//        }
 
+        private void sendRooms() throws IOException {
+            Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
+
+            out.writeInt(entrySet.size());
+            out.flush();
+
+            for (Map.Entry<Integer, Room> entry : entrySet) {
+                out.writeObject(entry.getKey());   // Wysyła klucz
+                out.writeObject(entry.getValue()); // Wysyła wartość
+                out.flush();
+            }
+        }
         @Override
         public void run() {
             try {

@@ -15,7 +15,7 @@ public class LoginController {
     }
 
     @FXML
-    protected void onConfirmButtonClick(ActionEvent event) throws IOException {
+    protected void onConfirmButtonClick(ActionEvent event) throws IOException, ClassNotFoundException {
         client.setNickname(nicknameInput.getText());
     }
 }

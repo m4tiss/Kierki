@@ -1,9 +1,10 @@
 package com.example.kierki;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Room {
+public class Room implements Serializable {
     private String roomName;
     private int amountOfClients;
     private ArrayList<String> players;
@@ -13,5 +14,9 @@ public class Room {
         this.roomName = roomName;
         this.players = new ArrayList<>();
         this.gameInProgress = false;
+    }
+
+    public String getRoomName() {
+        return roomName;
     }
 }

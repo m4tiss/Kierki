@@ -6,23 +6,19 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.text.Font?>
 
-
-<FlowPane alignment="CENTER" columnHalignment="CENTER" hgap="30.0" maxHeight="-Infinity" maxWidth="-Infinity"
-          minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="618.0" prefWidth="1110.0"
-          vgap="30.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<FlowPane alignment="CENTER" columnHalignment="CENTER" hgap="30.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="618.0" prefWidth="1110.0" vgap="30.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kierki.RoomsController">
    <opaqueInsets>
-      <Insets/>
+      <Insets />
    </opaqueInsets>
    <Label prefHeight="35.0" prefWidth="345.0" text="Witaj wybierz pokój, aby zagrac">
       <font>
-         <Font size="24.0"/>
+         <Font size="24.0" />
       </font>
    </Label>
-   <FlowPane prefHeight="200.0" prefWidth="200.0"/>
-   <Button mnemonicParsing="false"
-           style="-fx-background-color: green; -fx-text-fill: white; -fx-background-radius: 50px;" text="+">
+   <FlowPane id="roomsBox" fx:id="roomsBox" alignment="CENTER" columnHalignment="CENTER" hgap="20.0" orientation="VERTICAL" prefHeight="401.0" prefWidth="664.0" vgap="20.0" />
+   <Button id="addButton" mnemonicParsing="false" style="-fx-background-color: green; -fx-text-fill: white; -fx-background-radius: 50px; -fx-cursor: hand;" text="+">
       <font>
-         <Font size="33.0"/>
+         <Font size="33.0" />
       </font>
    </Button>
 </FlowPane>

@@ -29,10 +29,10 @@ public class Client {
         this.stage = stage;
         this.loginController = loginController;
         this.roomsLoader = roomsLoader;
-//        this.roomsController = roomsController;
+        this.roomsController = roomsController;
 //        this.gameController = gameController;
     }
-    public void setNickname(String nickname) throws IOException {
+    public void setNickname(String nickname) throws IOException, ClassNotFoundException {
         this.nickname = nickname;
         Scene roomsScene = new Scene(roomsLoader.getRoot(), 1280, 720);
         stage.setScene(roomsScene);
@@ -54,13 +54,27 @@ public class Client {
         out.flush();
     }
 
-    private int takeRooms() throws IOException {
-        in.readInt();
+//    private void takeRooms() throws IOException, ClassNotFoundException {
+//        int amountRooms = in.readInt();
+//        for(int i =0 ; i < amountRooms;i++){
+//            Room room =(Room)in.readObject();
+//            roomsController.addRoom(room.getRoomName());
+//        }
+//    }
+    private void takeRooms() throws IOException, ClassNotFoundException {
+        int amountRooms = in.readInt();
+        for (int i = 0; i < amountRooms; i++) {
+            Integer key = (Integer) in.readObject();   // Odbiera klucz
+            Room value = (Room) in.readObject();       // Odbiera wartość
+
+            roomsController.addRoom(value.getRoomName());
+        }
     }
-    public void start() throws IOException {
+    public void start() throws IOException, ClassNotFoundException {
         connectToServer();
         takeIDSendNickname();
-        int rooms = takeRooms();
+        takeRooms();
+
     }
     public static void main(String[] args) {
     }
