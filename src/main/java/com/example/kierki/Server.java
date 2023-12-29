@@ -49,6 +49,8 @@ public class Server {
         private String nickname;
         HashMap<Integer, Room> rooms;
 
+        private int chosenRoom;
+
 
         ObjectInputStream in;
         ObjectOutputStream out;
@@ -74,10 +76,14 @@ public class Server {
             out.flush();
 
             for (Map.Entry<Integer, Room> entry : entrySet) {
-                out.writeObject(entry.getKey());   // Wysyła klucz
-                out.writeObject(entry.getValue()); // Wysyła wartość
+                out.writeInt(entry.getKey());
+                out.writeObject(entry.getValue());
                 out.flush();
             }
+        }
+        private void waitOnRoom() throws IOException {
+            chosenRoom = in.readInt();
+            System.out.println(chosenRoom);
         }
         @Override
         public void run() {
@@ -89,7 +95,7 @@ public class Server {
                 System.out.print("Dołączył gracz o nicku:");
                 System.out.println(nickname);
                 sendRooms();
-
+                waitOnRoom();
                 while(true){
 
                 }
