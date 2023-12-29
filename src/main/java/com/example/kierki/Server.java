@@ -29,9 +29,8 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("przyjalem");
                 clients.add(clientSocket);
-                ClientHandler client = new ClientHandler(clientSocket, clientsId);
+                ClientHandler client = new ClientHandler(clientSocket, clientsId,rooms);
                 executorService.execute(client);
                 clientsId++;
             }
@@ -45,26 +44,42 @@ public class Server {
     static class ClientHandler implements Runnable {
         private final Socket socket;
         private final int clientId;
-
         private String nickname;
+        HashMap<Integer, Room> rooms;
 
-        public ClientHandler(Socket socket, int clientId) {
+
+        ObjectInputStream in;
+        ObjectOutputStream out;
+
+        public ClientHandler(Socket socket, int clientId,HashMap<Integer, Room> rooms) {
             this.socket = socket;
             this.clientId = clientId;
             this.nickname = "";
+            this.rooms = rooms;
+        }
+
+
+        private void sendIDAndTakeNickname() throws IOException {
+            out.writeInt(clientId);
+            out.flush();
+            nickname = in.readUTF();
+        }
+        private void sendRooms() throws IOException {
+            out.writeInt(rooms.size());
+            out.flush();
         }
 
         @Override
         public void run() {
             try {
-                System.out.println("robie");
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
-                out.writeInt(clientId);
-                out.flush();
-                nickname = in.readUTF();
+                sendIDAndTakeNickname();
+                System.out.print("Dołączył gracz o nicku:");
                 System.out.println(nickname);
+                sendRooms();
+
                 while(true){
 
                 }

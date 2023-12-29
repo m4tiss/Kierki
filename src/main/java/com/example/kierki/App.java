@@ -24,23 +24,21 @@ public class App extends Application {
         LoginController loginController = loginLoader.getController();
 
 
+        FXMLLoader roomsLoader = new FXMLLoader(App.class.getResource("rooms.fxml"));
+        roomsLoader.load();
+        RoomsController roomsController = roomsLoader.getController();
 
-
-//        FXMLLoader roomsLoader = new FXMLLoader(App.class.getResource("rooms.fxml"));
-//        roomsLoader.load();
-//        RoomsController roomsController = roomsLoader.getController();
-//
 //
 //        FXMLLoader gameLoader = new FXMLLoader(App.class.getResource("game.fxml"));
 //        gameLoader.load();
 //        GameController gameController = gameLoader.getController();
 //
-        Client client = new Client(stage,loginController);
+        Client client = new Client(stage,loginController,roomsController, roomsLoader);
 
         stage.setTitle("Kierki");
 
         loginController.setClient(client);
-//        roomsController.setClient(client);
+        roomsController.setClient(client);
 //        gameController.setClient(client);
 
 
