@@ -13,24 +13,22 @@ public class Client {
     private String nickname;
     LoginController loginController;
     RoomsController roomsController;
-
     FXMLLoader roomsLoader;
-
-//    GameController gameController;
+    GameController gameController;
+    FXMLLoader gameLoader;
     Stage stage;
-
     ObjectInputStream in;
     ObjectOutputStream out;
     Socket clientSocket;
-
     public int clientId;
 
-    public Client(Stage stage, LoginController loginController, RoomsController roomsController, FXMLLoader roomsLoader) {
+    public Client(Stage stage, LoginController loginController, RoomsController roomsController, FXMLLoader roomsLoader, GameController gameController, FXMLLoader gameLoader) {
         this.stage = stage;
         this.loginController = loginController;
         this.roomsLoader = roomsLoader;
         this.roomsController = roomsController;
-//        this.gameController = gameController;
+        this.gameLoader = gameLoader;
+        this.gameController = gameController;
     }
     public void setNickname(String nickname) throws IOException, ClassNotFoundException {
         this.nickname = nickname;
@@ -53,22 +51,17 @@ public class Client {
         out.writeUTF(nickname);
         out.flush();
     }
-
-//    private void takeRooms() throws IOException, ClassNotFoundException {
-//        int amountRooms = in.readInt();
-//        for(int i =0 ; i < amountRooms;i++){
-//            Room room =(Room)in.readObject();
-//            roomsController.addRoom(room.getRoomName());
-//        }
-//    }
     private void takeRooms() throws IOException, ClassNotFoundException {
         int amountRooms = in.readInt();
         for (int i = 0; i < amountRooms; i++) {
-            Integer key = (Integer) in.readObject();   // Odbiera klucz
-            Room value = (Room) in.readObject();       // Odbiera wartość
+            Integer key = (Integer) in.readObject();
+            Room value = (Room) in.readObject();
 
-            roomsController.addRoom(value.getRoomName());
+            roomsController.addRoom(value.getRoomName(),value.getAmountOfPlayers());
         }
+    }
+    public void joinToRoom(){
+
     }
     public void start() throws IOException, ClassNotFoundException {
         connectToServer();

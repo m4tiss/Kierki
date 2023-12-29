@@ -66,14 +66,6 @@ public class Server {
             out.flush();
             nickname = in.readUTF();
         }
-//        private void sendRooms() throws IOException {
-////            out.writeInt(rooms.size());
-////            out.flush();
-////            for(int i = 0;i<rooms.size();i++){
-////                out.writeObject(rooms.get(i));
-////            }
-//
-//        }
 
         private void sendRooms() throws IOException {
             Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();

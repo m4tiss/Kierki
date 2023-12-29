@@ -11,12 +11,15 @@ public class RoomsController {
     @FXML
     private FlowPane roomsBox;
 
-    public void addRoom(String roomName) {
-        Button roomButton = new Button(roomName);
+    public void addRoom(String roomName, int amountPlayers) {
+        Button roomButton = new Button();
+        roomButton.setText("Pokój: "+roomName+"           "+"Graczy: "+amountPlayers+"/4");
+        roomButton.setMinHeight(80);
+        roomButton.setMinWidth(60);
         roomButton.setOnAction(event -> {
             System.out.println("Kliknięto pokój: " + roomName);
-        });
 
+        });
         roomsBox.getChildren().add(roomButton);
     }
     public void setClient(Client client) {
