@@ -12,7 +12,7 @@ public class App extends Application {
     public App(){}
 
     @Override
-    public void start(Stage stage) throws IOException, InterruptedException {
+    public void start(Stage stage) throws IOException {
         FXMLLoader loginLoader = new FXMLLoader(App.class.getResource("nicknamePanel.fxml"));
         Scene login = new Scene(loginLoader.load(), 1280, 720);
         LoginController loginController = loginLoader.getController();
@@ -28,9 +28,10 @@ public class App extends Application {
         GameController gameController = gameLoader.getController();
 
         Client client = new Client(stage,loginController,roomsController, roomsLoader,gameController,gameLoader);
+        client.startReceiver();
+
 
         stage.setTitle("Kierki");
-
         loginController.setClient(client);
         roomsController.setClient(client);
         gameController.setClient(client);

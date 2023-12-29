@@ -11,29 +11,39 @@ import java.util.ArrayList;
 
 public class Server {
     private static final int PORT = 8888;
-    private static ArrayList<Socket> clients;
+
+    //mapa do trzyamania strumień klientów idKlienta, stream
     private static HashMap<Integer, ObjectOutputStream> outputStreams;
 
+    //mapa do trzymania pokoi idRoom , Room
     private static HashMap<Integer, Room> rooms;
+
+    //mapa do trzymania klient pokój idRoom,idClient
+    private static HashMap<Integer, Integer> clientRooms;
+
+    private static int idRoom;
+    private static int clientsId;
 
 
     public static void initObjects() {
-        clients = new ArrayList<>();
         outputStreams = new HashMap<>();
         rooms = new HashMap<>();
-        rooms.put(1,new Room("Testowy"));
+        idRoom = 1;
+        clientsId = 1;
+        rooms.put(idRoom, new Room("Testowy"));
+        idRoom++;
     }
 
     public static void main(String[] args) {
+
         initObjects();
-        int clientsId = 1;
+
         ExecutorService executorService = Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                clients.add(clientSocket);
-                ClientHandler client = new ClientHandler(clientSocket, clientsId,rooms);
-                executorService.execute(client);
+                ClientHandler clientHandler = new ClientHandler(clientSocket, clientsId);
+                executorService.execute(clientHandler);
                 clientsId++;
             }
         } catch (IOException e) {
@@ -47,27 +57,14 @@ public class Server {
         private final Socket socket;
         private final int clientId;
         private String nickname;
-        HashMap<Integer, Room> rooms;
-
-        private int chosenRoom;
-
-
         ObjectInputStream in;
         ObjectOutputStream out;
 
-        public ClientHandler(Socket socket, int clientId,HashMap<Integer, Room> rooms) {
+        public ClientHandler(Socket socket, int clientId) {
             this.socket = socket;
             this.clientId = clientId;
-            this.nickname = "";
-            this.rooms = rooms;
         }
 
-
-        private void sendIDAndTakeNickname() throws IOException {
-            out.writeInt(clientId);
-            out.flush();
-            nickname = in.readUTF();
-        }
 
         private void sendRooms() throws IOException {
             Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
@@ -81,42 +78,41 @@ public class Server {
                 out.flush();
             }
         }
-        private void waitOnRoom() throws IOException, ClassNotFoundException {
-            chosenRoom = (Integer)in.readObject();
-            rooms.get(chosenRoom).addPlayer(nickname);
-            Room toSend = rooms.get(chosenRoom);
-            out.reset();
-            out.writeObject(toSend);
-            out.flush();
-            for (ObjectOutputStream outClient : outputStreams.values()) {
-                if(outClient!=null){
-                    if(outClient!=out){
-                        outClient.writeInt(chosenRoom);
-                        outClient.flush();
-                    }
-                }
-            }
 
-        }
+//        private void waitOnRoom() throws IOException, ClassNotFoundException {
+//            chosenRoom = (Integer) in.readObject();
+//            rooms.get(chosenRoom).addPlayer(nickname);
+//            Room toSend = rooms.get(chosenRoom);
+//            out.reset();
+//            out.writeObject(toSend);
+//            out.flush();
+//            for (ObjectOutputStream outClient : outputStreams.values()) {
+//                if (outClient != null) {
+//                    if (outClient != out) {
+//                        outClient.writeInt(chosenRoom);
+//                        outClient.flush();
+//                    }
+//                }
+//            }
+//
+//        }
+
         @Override
         public void run() {
             try {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
-                sendIDAndTakeNickname();
+
+                nickname = in.readUTF();
                 System.out.print("Dołączył gracz o nicku:");
                 System.out.println(nickname);
                 sendRooms();
-                waitOnRoom();
-                while(true){
+//                waitOnRoom();
+                while (true) {
 
                 }
-
-
             } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }

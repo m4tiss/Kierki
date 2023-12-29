@@ -20,13 +20,13 @@ public class RoomsController {
         roomButton.setMinWidth(60);
         roomButton.setOnAction(event -> {
             System.out.println("Kliknięto pokój: " + roomName);
-            System.out.println("Key: " + key);
-            try {
-                client.sendChosenRoom(key);
-            } catch (IOException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            client.joinToRoom();
+//            System.out.println("Key: " + key);
+//            try {
+//                client.sendChosenRoom(key);
+//            } catch (IOException | ClassNotFoundException e) {
+//                throw new RuntimeException(e);
+//            }
+//            client.joinToRoom();
         });
         roomsBox.getChildren().add(roomButton);
     }

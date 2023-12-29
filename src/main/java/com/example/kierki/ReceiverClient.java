@@ -2,7 +2,6 @@ package com.example.kierki;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -10,31 +9,35 @@ public class ReceiverClient implements Runnable {
 
     public static int clientId;
     private  ObjectInputStream in;
-    private  ObjectOutputStream out;
     private  Socket socket;
     private ScheduledExecutorService executor;
-    private Room chosenRoom;
     private GameController gameController;
+    private RoomsController roomsController;
 
 
-    public ReceiverClient(ScheduledExecutorService exec, ObjectInputStream in, ObjectOutputStream out,Socket socket,Room chosenRoom, GameController gameController) {
+    public ReceiverClient(ScheduledExecutorService exec, ObjectInputStream in,Socket socket, GameController gameController,RoomsController roomsController) {
         this.executor = exec;
         this.in = in;
-        this.out = out;
         this.socket = socket;
-        this.chosenRoom = chosenRoom;
         this.gameController = gameController;
+        this.roomsController = roomsController;
+    }
+        private void takeRooms() throws IOException, ClassNotFoundException, IOException {
+        int amountRooms = in.readInt();
+        for (int i = 0; i < amountRooms; i++) {
+            Integer key = (Integer) in.readObject();
+            Room value = (Room) in.readObject();
+            roomsController.addRoom(key,value.getRoomName(), value.getAmountOfPlayers());
+        }
     }
 
     @Override
     public void run() {
         try {
-            in.readInt();
-            chosenRoom.addPlayer("og");
-            gameController.updateAmountPlayers(chosenRoom.getAmountOfPlayers());
-
-        } catch (IOException e) {
+            takeRooms();
+        } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        while(true){}
     }
 }
