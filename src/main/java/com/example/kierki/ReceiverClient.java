@@ -43,7 +43,8 @@ public class ReceiverClient implements Runnable {
     }
 
     private void game() throws IOException, ClassNotFoundException {
-//        Room room = (Room) in.readObject();
+        Room room = (Room) in.readObject();
+        gameController.drawGame(room);
     }
 
     @Override

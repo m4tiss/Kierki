@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 public class Server {
     private static final int PORT = 8888;
@@ -23,6 +24,8 @@ public class Server {
 
     private static int idRoom;
     private static int clientsId;
+    private static HashMap<Integer, Semaphore> roomSemaphores;
+
 
 
     public static void initObjects() {
@@ -33,6 +36,7 @@ public class Server {
         clientsId = 1;
         rooms.put(idRoom, new Room("Zajaweczka",idRoom));
         idRoom++;
+        roomSemaphores =new HashMap<>();
     }
 
     public static void main(String[] args) {
@@ -86,6 +90,9 @@ public class Server {
             clientRooms.put(clientId,chosenRoom);
             Room currentRoom = rooms.get(chosenRoom);
             currentRoom.addPlayer(nickname,clientId);
+
+            roomSemaphores.putIfAbsent(chosenRoom, new Semaphore(0));
+
             if(currentRoom.getAmountOfPlayers()==4){
                 currentRoom.setGameInProgress(Boolean.TRUE);
                 currentRoom.shuffleDeck();
@@ -108,10 +115,24 @@ public class Server {
                     System.out.println("wysyłąłem do : "+targetClientId);
                 }
             }
+            if(currentRoom.getAmountOfPlayers()==4){
+                for (int i = 0; i < 4; i++) {
+                    roomSemaphores.get(chosenRoom).release();
+                }
+            }
         }
 
-        private void game(){
+        private void game() throws IOException {
+            int idCurrentRoom = clientRooms.get(clientId);
 
+            try {
+                System.out.println("czekam na semaforze");
+                roomSemaphores.get(idCurrentRoom).acquire();
+                System.out.println("klient"+ clientId+"poszedlem za watek");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            out.writeObject(rooms.get(idCurrentRoom));
         }
 
 

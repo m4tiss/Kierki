@@ -35,4 +35,8 @@ public class GameController {
             mainScene.getChildren().remove(amountPlayers);
         });
     }
+
+    public void drawGame(Room room){
+        System.out.println("gotowy");
+    }
 }
