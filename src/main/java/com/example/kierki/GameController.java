@@ -2,9 +2,11 @@ package com.example.kierki;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Polyline;
+
 
 
 import java.io.IOException;
@@ -26,14 +28,16 @@ public class GameController {
     private Polyline arrow4;
 
 
-    @FXML
-    private Box otherBox1;
 
     @FXML
-    private Box otherBox2;
+    private ImageView reverse1;
 
     @FXML
-    private Box otherBox3;
+    private ImageView reverse2;
+
+    @FXML
+    private ImageView reverse3;
+
 
     @FXML
     private Label amountPlayers;
@@ -66,9 +70,9 @@ public class GameController {
 
         Platform.runLater(() -> {
 
-            otherBox1.setOpacity(1);
-            otherBox2.setOpacity(1);
-            otherBox3.setOpacity(1);
+            reverse1.setOpacity(1);
+            reverse2.setOpacity(1);
+            reverse3.setOpacity(1);
 
             int turn = room.getTurn();
             arrow1.setOpacity(turn == 0 ? 1 : 0);
