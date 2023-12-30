@@ -5,7 +5,6 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="832.0" prefWidth="1344.0" style="-fx-background-image: url('file:C:/Users/Mateusz/Desktop/background.jpg');" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kierki.GameController">
    <children>
       <FlowPane alignment="CENTER" hgap="20.0" layoutY="595.0" prefHeight="239.0" prefWidth="1343.0" vgap="10.0" />
@@ -14,7 +13,7 @@
             <Font size="30.0" />
          </font>
       </Label>
-      <Label id="amountPlayers" fx:id="amountPlayers" layoutX="670.0" layoutY="183.0" prefHeight="49.0" prefWidth="64.0" text="1/4" textFill="WHITE">
+      <Label id="amountPlayers" fx:id="amountPlayers" layoutX="670.0" layoutY="183.0" prefHeight="53.0" prefWidth="53.0" text="?/4" textFill="WHITE">
          <font>
             <Font size="36.0" />
          </font>

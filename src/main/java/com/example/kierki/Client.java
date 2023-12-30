@@ -33,12 +33,24 @@ public class Client {
         this.gameLoader = gameLoader;
         this.gameController = gameController;
     }
+
     public void setNickname(String nickname) throws IOException {
         this.nickname = nickname;
         Scene roomsScene = new Scene(roomsLoader.getRoot(), 1280, 720);
         stage.setScene(roomsScene);
         out.writeUTF(nickname);
         out.flush();
+
+    }
+
+    public void sendChosenRoom(Integer idRoom) throws IOException {
+        out.writeObject(idRoom);
+        out.flush();
+    }
+
+    public void joinToRoom() {
+        Scene gameScene = new Scene(gameLoader.getRoot(), 1280, 720);
+        stage.setScene(gameScene);
 
     }
 
@@ -52,7 +64,7 @@ public class Client {
             e.printStackTrace();
         }
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        ReceiverClient receiver = new ReceiverClient(executorService, in, clientSocket,gameController,roomsController);
+        ReceiverClient receiver = new ReceiverClient(executorService, in, clientSocket, gameController, roomsController);
         executorService.schedule(receiver, 0, TimeUnit.SECONDS);
     }
 
@@ -62,30 +74,5 @@ public class Client {
 
 }
 
-//    private void takeIDSendNickname() throws IOException {
-//        clientId = in.readInt();
-//        out.writeUTF(nickname);
-//        out.flush();
-//    }
 
 
-
-//    public void sendChosenRoom(Integer room) throws IOException, ClassNotFoundException {
-//        out.writeObject(room);
-//        out.flush();
-//        out.reset();
-//        chosenRoom =  (Room) in.readObject();
-//    }
-//    public void joinToRoom() {
-//        Scene gameScene = new Scene(gameLoader.getRoot(), 1280, 720);
-//        stage.setScene(gameScene);
-//        Game game = new Game(stage, gameController, gameLoader,chosenRoom);
-//        game.updatePlayersInRoom();
-//
-//    }
-
-//    public void start() throws IOException, ClassNotFoundException {
-//        connectToServer();
-//        takeIDSendNickname();
-//        takeRooms();
-//    }

@@ -22,22 +22,36 @@ public class ReceiverClient implements Runnable {
         this.gameController = gameController;
         this.roomsController = roomsController;
     }
-        private void takeRooms() throws IOException, ClassNotFoundException, IOException {
+        private void takeRooms() throws ClassNotFoundException, IOException {
         int amountRooms = in.readInt();
         for (int i = 0; i < amountRooms; i++) {
-            Integer key = (Integer) in.readObject();
-            Room value = (Room) in.readObject();
-            roomsController.addRoom(key,value.getRoomName(), value.getAmountOfPlayers());
+            Integer idRoom =  in.readInt();
+            Room room = (Room) in.readObject();
+            roomsController.addRoom(idRoom,room.getRoomName(), room.getAmountOfPlayers());
         }
+    }
+
+    private void checkOnOther() throws ClassNotFoundException, IOException {
+        int numberOfPlayers = 0;
+        while(numberOfPlayers!=4){
+            numberOfPlayers = in.readInt();
+            System.out.println(numberOfPlayers);
+            gameController.updateAmountPlayers(numberOfPlayers);
+        }
+        System.out.println("działa");
     }
 
     @Override
     public void run() {
         try {
             takeRooms();
+            checkOnOther();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        while(true){}
+
+        while(true){
+
+        }
     }
 }

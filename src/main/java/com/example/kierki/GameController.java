@@ -1,8 +1,8 @@
 package com.example.kierki;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+
 
 import java.io.IOException;
 
@@ -16,6 +16,9 @@ public class GameController {
 
     public void updateAmountPlayers(int current) {
         String newText = current + "/" + 4;
-        amountPlayers.setText(newText);
+        System.out.println(newText);
+        Platform.runLater(() -> {
+                amountPlayers.setText(newText);
+        });
     }
 }

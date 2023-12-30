@@ -18,7 +18,7 @@ public class Server {
     //mapa do trzymania pokoi idRoom , Room
     private static HashMap<Integer, Room> rooms;
 
-    //mapa do trzymania klient pokój idRoom,idClient
+    //mapa do trzymania klient pokój idClient,idRoom,
     private static HashMap<Integer, Integer> clientRooms;
 
     private static int idRoom;
@@ -28,6 +28,7 @@ public class Server {
     public static void initObjects() {
         outputStreams = new HashMap<>();
         rooms = new HashMap<>();
+        clientRooms = new HashMap<>();
         idRoom = 1;
         clientsId = 1;
         rooms.put(idRoom, new Room("Testowy"));
@@ -68,34 +69,41 @@ public class Server {
 
         private void sendRooms() throws IOException {
             Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
-
             out.writeInt(entrySet.size());
             out.flush();
 
             for (Map.Entry<Integer, Room> entry : entrySet) {
-                out.writeObject(entry.getKey());
+                out.writeInt(entry.getKey());
                 out.writeObject(entry.getValue());
                 out.flush();
             }
         }
 
-//        private void waitOnRoom() throws IOException, ClassNotFoundException {
-//            chosenRoom = (Integer) in.readObject();
-//            rooms.get(chosenRoom).addPlayer(nickname);
-//            Room toSend = rooms.get(chosenRoom);
-//            out.reset();
-//            out.writeObject(toSend);
-//            out.flush();
-//            for (ObjectOutputStream outClient : outputStreams.values()) {
-//                if (outClient != null) {
-//                    if (outClient != out) {
-//                        outClient.writeInt(chosenRoom);
-//                        outClient.flush();
-//                    }
-//                }
-//            }
-//
-//        }
+
+
+        private void waitOnRoomAndBroadcast() throws IOException, ClassNotFoundException {
+            Integer chosenRoom = (Integer) in.readObject();
+            clientRooms.put(clientId,chosenRoom);
+            rooms.get(chosenRoom).addPlayer(nickname);
+
+            int sendingClientRoom = clientRooms.get(clientId);
+
+            System.out.println("ID KLIENTA: "+clientId);
+            System.out.println("ID POKOJU: "+sendingClientRoom);
+            System.out.println("NICKNAME: "+nickname);
+
+            for (Map.Entry<Integer, ObjectOutputStream> entry : outputStreams.entrySet()) {
+                int targetClientId = entry.getKey();
+                ObjectOutputStream targetOutputStream = entry.getValue();
+
+                if (clientRooms.containsKey(targetClientId) && clientRooms.get(targetClientId) == sendingClientRoom) {
+                    targetOutputStream.writeInt(rooms.get(chosenRoom).getAmountOfPlayers());
+                    targetOutputStream.flush();
+                    System.out.println("wysyłąłem do : "+targetClientId);
+                }
+            }
+        }
+
 
         @Override
         public void run() {
@@ -105,14 +113,16 @@ public class Server {
                 outputStreams.put(clientId, out);
 
                 nickname = in.readUTF();
+
                 System.out.print("Dołączył gracz o nicku:");
                 System.out.println(nickname);
+
                 sendRooms();
-//                waitOnRoom();
+                waitOnRoomAndBroadcast();
                 while (true) {
 
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
