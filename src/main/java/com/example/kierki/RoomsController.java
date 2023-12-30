@@ -14,16 +14,20 @@ public class RoomsController {
     @FXML
     private FlowPane roomsBox;
 
-    public void addRoom(Integer idRoom,String roomName, int amountPlayers) {
+    public void addRoom(Room room) {
         Platform.runLater(() -> {
             Button roomButton = new Button();
-            roomButton.setText("Pokój: " + roomName + "           " + "Graczy: " + amountPlayers + "/4");
+            roomButton.setText("Pokój: " + room.getRoomName() + "           " + "Graczy: " + room.getAmountOfPlayers() + "/4");
             roomButton.setMinHeight(80);
             roomButton.setMinWidth(60);
+            System.out.println("ilosc"+room.getAmountOfPlayers());
+
+            if(room.getAmountOfPlayers()>=4)roomButton.setDisable(true);
+
             roomButton.setOnAction(event -> {
-                System.out.println("Kliknięto pokój: " + roomName);
+                System.out.println("Kliknięto pokój: " + room.getRoomName());
                 try {
-                    client.sendChosenRoom(idRoom);
+                    client.sendChosenRoom(room.getIdRoom());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

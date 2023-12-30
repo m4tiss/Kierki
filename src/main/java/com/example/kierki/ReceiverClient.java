@@ -27,7 +27,7 @@ public class ReceiverClient implements Runnable {
         for (int i = 0; i < amountRooms; i++) {
             Integer idRoom =  in.readInt();
             Room room = (Room) in.readObject();
-            roomsController.addRoom(idRoom,room.getRoomName(), room.getAmountOfPlayers());
+            roomsController.addRoom(room);
         }
     }
 
@@ -39,6 +39,11 @@ public class ReceiverClient implements Runnable {
             gameController.updateAmountPlayers(numberOfPlayers);
         }
         System.out.println("działa");
+        gameController.startGame();
+    }
+
+    private void game() throws IOException, ClassNotFoundException {
+//        Room room = (Room) in.readObject();
     }
 
     @Override
@@ -49,9 +54,14 @@ public class ReceiverClient implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
         while(true){
-
+            try {
+                game();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

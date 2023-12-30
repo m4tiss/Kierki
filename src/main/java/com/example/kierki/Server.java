@@ -31,7 +31,7 @@ public class Server {
         clientRooms = new HashMap<>();
         idRoom = 1;
         clientsId = 1;
-        rooms.put(idRoom, new Room("Testowy"));
+        rooms.put(idRoom, new Room("Zajaweczka",idRoom));
         idRoom++;
     }
 
@@ -84,7 +84,13 @@ public class Server {
         private void waitOnRoomAndBroadcast() throws IOException, ClassNotFoundException {
             Integer chosenRoom = (Integer) in.readObject();
             clientRooms.put(clientId,chosenRoom);
-            rooms.get(chosenRoom).addPlayer(nickname);
+            Room currentRoom = rooms.get(chosenRoom);
+            currentRoom.addPlayer(nickname,clientId);
+            if(currentRoom.getAmountOfPlayers()==4){
+                currentRoom.setGameInProgress(Boolean.TRUE);
+                currentRoom.shuffleDeck();
+                currentRoom.dealCards();
+            }
 
             int sendingClientRoom = clientRooms.get(clientId);
 
@@ -104,6 +110,10 @@ public class Server {
             }
         }
 
+        private void game(){
+
+        }
+
 
         @Override
         public void run() {
@@ -119,6 +129,7 @@ public class Server {
 
                 sendRooms();
                 waitOnRoomAndBroadcast();
+                game();
                 while (true) {
 
                 }
