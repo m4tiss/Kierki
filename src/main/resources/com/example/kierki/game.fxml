@@ -3,9 +3,11 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.shape.Box?>
+<?import javafx.scene.shape.Polyline?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="mainScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="832.0" prefWidth="1344.0" style="-fx-background-image: url('file:C:/Users/DOM/Desktop/background.jpg');" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kierki.GameController">
+<AnchorPane fx:id="mainScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="832.0" prefWidth="1344.0" style="-fx-background-image: url('file:C:/Users/Mateusz/Desktop/background.jpg');" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.kierki.GameController">
    <children>
       <FlowPane alignment="CENTER" hgap="20.0" layoutY="595.0" prefHeight="239.0" prefWidth="1343.0" vgap="10.0" />
       <Label fx:id="welcomeText" layoutX="496.0" layoutY="62.0" prefHeight="138.0" prefWidth="407.0" text="Poczekaj na graczy! Obecnie:" textFill="WHITE">
@@ -18,5 +20,12 @@
             <Font size="36.0" />
          </font>
       </Label>
+      <Polyline fx:id="arrow1" fill="WHITE" layoutX="696.0" layoutY="562.0" points="-50.0, -40.0, 50.0, -40.0, 0.0, 60.0, -50.0, -40.0" scaleX="0.3" scaleY="0.3" scaleZ="0.3" strokeType="INSIDE" style="-fx-opacity: 0;" />
+      <Polyline fx:id="arrow4" fill="WHITE" layoutX="1121.0" layoutY="399.0" points="-50.0, -40.0, 50.0, -40.0, 0.0, 60.0, -50.0, -40.0" scaleX="0.3" scaleY="0.3" scaleZ="0.3" strokeType="INSIDE" style="-fx-rotate: -90; -fx-opacity: 0;" />
+      <Polyline fx:id="arrow3" fill="WHITE" layoutX="696.0" layoutY="190.0" points="-50.0, -40.0, 50.0, -40.0, 0.0, 60.0, -50.0, -40.0" scaleX="0.3" scaleY="0.3" scaleZ="0.3" strokeType="INSIDE" style="-fx-rotate: 180; -fx-opacity: 0;" />
+      <Polyline fx:id="arrow2" fill="WHITE" layoutX="243.0" layoutY="399.0" points="-50.0, -40.0, 50.0, -40.0, 0.0, 60.0, -50.0, -40.0" scaleX="0.3" scaleY="0.3" scaleZ="0.3" strokeType="INSIDE" style="-fx-rotate: 90; -fx-opacity: 0;" />
+      <Box fx:id="otherBox1" depth="100" height="200.0" layoutX="114.0" layoutY="415.0" style="-fx-opacity: 0;" width="150.0" />
+      <Box fx:id="otherBox3" depth="100" height="200.0" layoutX="1230.0" layoutY="415.0" style="-fx-opacity: 0;" width="150.0" />
+      <Box fx:id="otherBox2" depth="100" height="200.0" layoutX="676.0" layoutY="96.0" rotate="90.0" style="-fx-opacity: 0;" width="150.0" />
    </children>
 </AnchorPane>

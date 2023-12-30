@@ -97,6 +97,7 @@ public class Server {
                 currentRoom.setGameInProgress(Boolean.TRUE);
                 currentRoom.shuffleDeck();
                 currentRoom.dealCards();
+                currentRoom.randomTurn();
             }
 
             int sendingClientRoom = clientRooms.get(clientId);
@@ -124,7 +125,6 @@ public class Server {
 
         private void game() throws IOException {
             int idCurrentRoom = clientRooms.get(clientId);
-
             try {
                 System.out.println("czekam na semaforze");
                 roomSemaphores.get(idCurrentRoom).acquire();
@@ -132,7 +132,10 @@ public class Server {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("Tura"+rooms.get(idCurrentRoom).getTurn());
+            out.reset();
             out.writeObject(rooms.get(idCurrentRoom));
+            out.flush();
         }
 
 
@@ -143,6 +146,8 @@ public class Server {
                 in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
 
+                out.writeInt(clientId);
+                out.flush();
                 nickname = in.readUTF();
 
                 System.out.print("Dołączył gracz o nicku:");

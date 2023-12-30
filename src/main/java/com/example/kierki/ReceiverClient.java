@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ReceiverClient implements Runnable {
 
     public static int clientId;
+    private Client client;
     private  ObjectInputStream in;
     private  Socket socket;
     private ScheduledExecutorService executor;
@@ -15,12 +16,17 @@ public class ReceiverClient implements Runnable {
     private RoomsController roomsController;
 
 
-    public ReceiverClient(ScheduledExecutorService exec, ObjectInputStream in,Socket socket, GameController gameController,RoomsController roomsController) {
+    public ReceiverClient(Client client,ScheduledExecutorService exec, ObjectInputStream in,Socket socket, GameController gameController,RoomsController roomsController) {
+        this.client=client;
         this.executor = exec;
         this.in = in;
         this.socket = socket;
         this.gameController = gameController;
         this.roomsController = roomsController;
+    }
+    private void setID() throws ClassNotFoundException, IOException {
+        clientId = in.readInt();
+        client.setClientID(clientId);
     }
         private void takeRooms() throws ClassNotFoundException, IOException {
         int amountRooms = in.readInt();
@@ -44,12 +50,14 @@ public class ReceiverClient implements Runnable {
 
     private void game() throws IOException, ClassNotFoundException {
         Room room = (Room) in.readObject();
+        System.out.println(room);
         gameController.drawGame(room);
     }
 
     @Override
     public void run() {
         try {
+            setID();
             takeRooms();
             checkOnOther();
         } catch (IOException | ClassNotFoundException e) {

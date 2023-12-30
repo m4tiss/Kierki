@@ -16,7 +16,9 @@ public class Client {
 
     private static final int PORT = 8888;
     private String nickname;
+    private int clientID;
     Socket clientSocket;
+
     ObjectOutputStream out;
     Stage stage;
     LoginController loginController;
@@ -49,7 +51,7 @@ public class Client {
     }
 
     public void joinToRoom() {
-        Scene gameScene = new Scene(gameLoader.getRoot(), 1280, 720);
+        Scene gameScene = new Scene(gameLoader.getRoot(), 1344, 832);
         stage.setScene(gameScene);
 
     }
@@ -64,13 +66,14 @@ public class Client {
             e.printStackTrace();
         }
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        ReceiverClient receiver = new ReceiverClient(executorService, in, clientSocket, gameController, roomsController);
+        ReceiverClient receiver = new ReceiverClient(this,executorService, in, clientSocket, gameController, roomsController);
         executorService.schedule(receiver, 0, TimeUnit.SECONDS);
     }
-
-
-    public static void main(String[] args) {
+    public void setClientID(int clientID){
+        this.clientID=clientID;
+        System.out.println("Moje ID to:"+clientID);
     }
+
 
 }
 

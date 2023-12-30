@@ -3,6 +3,7 @@ package com.example.kierki;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 import java.util.List;
 
 public class Room implements Serializable {
@@ -14,6 +15,8 @@ public class Room implements Serializable {
     private ArrayList<Integer> clientsID;
     private boolean gameInProgress;
     private ArrayList<Card> deck;
+
+    private int turn;
 
     public Room(String roomName, int idRoom) {
         this.roomName = roomName;
@@ -70,6 +73,15 @@ public class Room implements Serializable {
         displayDeck();
     }
 
+    public void randomTurn() {
+        Random random = new Random();
+        turn = random.nextInt(4);
+        System.out.println("Randomly generated turn: " + turn);
+    }
+    public void nextTurn() {
+        turn = (turn + 1) % 4;
+        System.out.println("Next turn: " + turn);
+    }
 
     public void addPlayer(String nickname,int clientID) {
         players.add(nickname);
@@ -85,5 +97,8 @@ public class Room implements Serializable {
         for (Card card : deck) {
             card.displayCard();
         }
+    }
+    public int getTurn() {
+        return turn;
     }
 }
