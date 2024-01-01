@@ -31,4 +31,7 @@ public class Card implements Serializable {
         this.clientID=clientID;
     }
 
+    public int getClientID() {
+        return clientID;
+    }
 }

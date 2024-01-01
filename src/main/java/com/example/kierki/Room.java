@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
-import java.util.List;
 
 public class Room implements Serializable {
 
@@ -14,6 +13,7 @@ public class Room implements Serializable {
     private ArrayList<String> players;
     private ArrayList<Integer> clientsID;
     private boolean gameInProgress;
+
     private ArrayList<Card> deck;
 
     private int turn;
@@ -78,11 +78,11 @@ public class Room implements Serializable {
         turn = random.nextInt(4);
         System.out.println("Randomly generated turn: " + turn);
     }
+
     public void nextTurn() {
         turn = (turn + 1) % 4;
         System.out.println("Next turn: " + turn);
     }
-
     public void addPlayer(String nickname,int clientID) {
         players.add(nickname);
         amountOfPlayers++;
@@ -98,7 +98,21 @@ public class Room implements Serializable {
             card.displayCard();
         }
     }
+
     public int getTurn() {
         return turn;
     }
+    public ArrayList<Card> getCardsFromClientID(int clientID) {
+        ArrayList<Card> clientsCards = new ArrayList<>();
+        for (Card card : deck) {
+            if(card.getClientID()==clientID){
+                clientsCards.add(card);
+            }
+        }
+        return clientsCards;
+    }
+
+//    public void setDeck(ArrayList<Card> deck) {
+//        this.deck = deck;
+//    }
 }

@@ -1,15 +1,18 @@
 package com.example.kierki;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.Box;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.shape.Polyline;
+import javafx.util.Duration;
 
 
-
-import java.io.IOException;
+import java.util.ArrayList;
 
 public class GameController {
     @FXML
@@ -27,6 +30,8 @@ public class GameController {
     @FXML
     private Polyline arrow4;
 
+    @FXML
+    private FlowPane cardArea;
 
 
     @FXML
@@ -44,6 +49,7 @@ public class GameController {
     @FXML
     private Label welcomeText;
     private Client client;
+    private ImageView[] cardImageViews;
 
     public void setClient(Client client) {
         this.client = client;
@@ -79,7 +85,52 @@ public class GameController {
             arrow2.setOpacity(turn == 1 ? 1 : 0);
             arrow3.setOpacity(turn == 2 ? 1 : 0);
             arrow4.setOpacity(turn == 3 ? 1 : 0);
+            initializeCards();
+            updateCardFlowPane(room);
+        });
+    }
+    public void initializeCards() {
+        cardImageViews = new ImageView[13];
+        for (int i = 0; i < cardImageViews.length; i++) {
+            cardImageViews[i] = new ImageView();
+            cardImageViews[i].setFitWidth(80);
+            cardImageViews[i].setPreserveRatio(true);
+            cardImageViews[i].cursorProperty().setValue(Cursor.HAND);
+            addHoverEffect(cardImageViews[i]);
+        }
+    }
+    private void updateCardFlowPane(Room room) {
+        cardArea.getChildren().clear();
+        for (ImageView cardImageView : cardImageViews) {
+            cardArea.getChildren().add(cardImageView);
+        }
+
+        ArrayList<Card> clientCards = room.getCardsFromClientID(client.getID());
+        for (int i = 0; i < clientCards.size(); i++) {
+            String nameCard = "file:cards/"+clientCards.get(i).getValue()+clientCards.get(i).getSymbol()+".png";
+            Image cardImage =  new Image(nameCard);
+            cardImageViews[i].setImage(cardImage);
+        }
+
+    }
+    private void addHoverEffect(ImageView imageView) {
+        final double scaleFactorOnHover = 1.2;
+        final Duration duration = Duration.millis(200);
+
+        ScaleTransition hoverUpTransition = new ScaleTransition(duration, imageView);
+        hoverUpTransition.setToX(scaleFactorOnHover);
+        hoverUpTransition.setToY(scaleFactorOnHover);
+
+        ScaleTransition hoverDownTransition = new ScaleTransition(duration, imageView);
+        hoverDownTransition.setToX(1.0);
+        hoverDownTransition.setToY(1.0);
+
+        imageView.setOnMouseEntered(event -> {
+            hoverUpTransition.playFromStart();
         });
 
+        imageView.setOnMouseExited(event -> {
+            hoverDownTransition.playFromStart();
+        });
     }
 }

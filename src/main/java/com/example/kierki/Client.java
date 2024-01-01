@@ -16,17 +16,18 @@ public class Client {
 
     private static final int PORT = 8888;
     private String nickname;
-    private int clientID;
-    Socket clientSocket;
 
+    private int clientID;
+
+    Socket clientSocket;
     ObjectOutputStream out;
+
     Stage stage;
     LoginController loginController;
     RoomsController roomsController;
     GameController gameController;
     FXMLLoader roomsLoader;
     FXMLLoader gameLoader;
-
     public Client(Stage stage, LoginController loginController, RoomsController roomsController, FXMLLoader roomsLoader, GameController gameController, FXMLLoader gameLoader) {
         this.stage = stage;
         this.loginController = loginController;
@@ -43,6 +44,10 @@ public class Client {
         out.writeUTF(nickname);
         out.flush();
 
+    }
+
+    public int getID() {
+        return clientID;
     }
 
     public void sendChosenRoom(Integer idRoom) throws IOException {
