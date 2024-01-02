@@ -12,6 +12,7 @@ import javafx.scene.shape.Polyline;
 import javafx.util.Duration;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class GameController {
@@ -75,19 +76,30 @@ public class GameController {
         System.out.println("turan"+room.getTurn());
 
         Platform.runLater(() -> {
-
-            reverse1.setOpacity(1);
-            reverse2.setOpacity(1);
-            reverse3.setOpacity(1);
-
-            int turn = room.getTurn();
-            arrow1.setOpacity(turn == 0 ? 1 : 0);
-            arrow2.setOpacity(turn == 1 ? 1 : 0);
-            arrow3.setOpacity(turn == 2 ? 1 : 0);
-            arrow4.setOpacity(turn == 3 ? 1 : 0);
+            setReverseCards();
+            setArrows(room);
             initializeCards();
             updateCardFlowPane(room);
         });
+    }
+
+    public void game(Room room){
+//        Platform.runLater(() -> {
+//
+//        });
+    }
+
+    private void setReverseCards(){
+        reverse1.setOpacity(1);
+        reverse2.setOpacity(1);
+        reverse3.setOpacity(1);
+    }
+    private void setArrows(Room room){
+        int turn = room.getTurn();
+        arrow1.setOpacity(turn == 0 ? 1 : 0);
+        arrow2.setOpacity(turn == 1 ? 1 : 0);
+        arrow3.setOpacity(turn == 2 ? 1 : 0);
+        arrow4.setOpacity(turn == 3 ? 1 : 0);
     }
     public void initializeCards() {
         cardImageViews = new ImageView[13];
@@ -98,6 +110,9 @@ public class GameController {
             cardImageViews[i].cursorProperty().setValue(Cursor.HAND);
             addHoverEffect(cardImageViews[i]);
         }
+    }
+    private void handleCardClick(int value, String symbol) throws IOException {
+        client.sendMove(value,symbol);
     }
     private void updateCardFlowPane(Room room) {
         cardArea.getChildren().clear();
@@ -110,8 +125,15 @@ public class GameController {
             String nameCard = "file:cards/"+clientCards.get(i).getValue()+clientCards.get(i).getSymbol()+".png";
             Image cardImage =  new Image(nameCard);
             cardImageViews[i].setImage(cardImage);
+            int finalI = i;
+            cardImageViews[i].setOnMouseClicked(event -> {
+                try {
+                    handleCardClick(clientCards.get(finalI).getValue(),clientCards.get(finalI).getSymbol());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
-
     }
     private void addHoverEffect(ImageView imageView) {
         final double scaleFactorOnHover = 1.2;

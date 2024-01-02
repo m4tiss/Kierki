@@ -49,6 +49,12 @@ public class Client {
     public int getID() {
         return clientID;
     }
+    public void sendMove(int value, String symbol) throws IOException {
+        out.writeInt(value);
+        out.flush();
+        out.writeUTF(symbol);
+        out.flush();
+    }
 
     public void sendChosenRoom(Integer idRoom) throws IOException {
         out.writeObject(idRoom);

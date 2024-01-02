@@ -102,10 +102,6 @@ public class Server {
 
             int sendingClientRoom = clientRooms.get(clientId);
 
-            System.out.println("ID KLIENTA: "+clientId);
-            System.out.println("ID POKOJU: "+sendingClientRoom);
-            System.out.println("NICKNAME: "+nickname);
-
             for (Map.Entry<Integer, ObjectOutputStream> entry : outputStreams.entrySet()) {
                 int targetClientId = entry.getKey();
                 ObjectOutputStream targetOutputStream = entry.getValue();
@@ -113,7 +109,6 @@ public class Server {
                 if (clientRooms.containsKey(targetClientId) && clientRooms.get(targetClientId) == sendingClientRoom) {
                     targetOutputStream.writeInt(rooms.get(chosenRoom).getAmountOfPlayers());
                     targetOutputStream.flush();
-                    System.out.println("wysyłąłem do : "+targetClientId);
                 }
             }
             if(currentRoom.getAmountOfPlayers()==4){
@@ -123,19 +118,46 @@ public class Server {
             }
         }
 
-        private void game() throws IOException {
+        private Room takeCurrentRoom(){
+            int idCurrentRoom = clientRooms.get(clientId);
+            return rooms.get(idCurrentRoom);
+        }
+        private void startOfGame() throws IOException {
             int idCurrentRoom = clientRooms.get(clientId);
             try {
-                System.out.println("czekam na semaforze");
                 roomSemaphores.get(idCurrentRoom).acquire();
-                System.out.println("klient"+ clientId+"poszedlem za watek");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("Tura"+rooms.get(idCurrentRoom).getTurn());
             out.reset();
             out.writeObject(rooms.get(idCurrentRoom));
             out.flush();
+        }
+        private void game() throws IOException {
+            while(true){
+                int chosenValue = in.readInt();
+                String chosenSymbol = in.readUTF();
+                if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
+                    System.out.println("id klienta: " +clientId);
+                    System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
+                    System.out.println(chosenValue+chosenSymbol);
+                    takeCurrentRoom().nextTurn();
+
+                    int sendingClientRoom = clientRooms.get(clientId);
+
+                    for (Map.Entry<Integer, ObjectOutputStream> entry : outputStreams.entrySet()) {
+                        int targetClientId = entry.getKey();
+                        ObjectOutputStream targetOutputStream = entry.getValue();
+
+                        if (clientRooms.containsKey(targetClientId) && clientRooms.get(targetClientId) == sendingClientRoom) {
+                            targetOutputStream.reset();
+                            targetOutputStream.writeObject(takeCurrentRoom());
+                            targetOutputStream.flush();
+                            System.out.println("wysyłąłem pokój do : "+targetClientId);
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -150,15 +172,13 @@ public class Server {
                 out.flush();
                 nickname = in.readUTF();
 
-                System.out.print("Dołączył gracz o nicku:");
-                System.out.println(nickname);
+//                System.out.print("Dołączył gracz o nicku:");
+//                System.out.println(nickname);
 
                 sendRooms();
                 waitOnRoomAndBroadcast();
+                startOfGame();
                 game();
-                while (true) {
-
-                }
             } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }

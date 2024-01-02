@@ -48,12 +48,18 @@ public class ReceiverClient implements Runnable {
         gameController.startGame();
     }
 
-    private void game() throws IOException, ClassNotFoundException {
+    private void startOfGame() throws IOException, ClassNotFoundException {
         Room room = (Room) in.readObject();
         System.out.println(room);
         gameController.drawGame(room);
     }
 
+    private void game() throws IOException, ClassNotFoundException {
+        Room room = (Room) in.readObject();
+//        gameController.game(room);
+        System.out.println("ZMIENIŁA SIĘ TURA");
+        System.out.println("TURA:"+ room.getTurn());
+    }
     @Override
     public void run() {
         try {
@@ -63,13 +69,16 @@ public class ReceiverClient implements Runnable {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+        try {
+            startOfGame();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         while(true){
             try {
                 game();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }

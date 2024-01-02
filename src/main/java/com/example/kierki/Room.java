@@ -11,9 +11,10 @@ public class Room implements Serializable {
     private int amountOfPlayers;
     private String roomName;
     private ArrayList<String> players;
-    private ArrayList<Integer> clientsID;
-    private boolean gameInProgress;
 
+    private ArrayList<Integer> clientsID;
+
+    private boolean gameInProgress;
     private ArrayList<Card> deck;
 
     private int turn;
@@ -26,6 +27,10 @@ public class Room implements Serializable {
         this.amountOfPlayers = 0;
         this.idRoom = idRoom;
         initializeDeck();
+    }
+
+    public ArrayList<Integer> getClientsID() {
+        return clientsID;
     }
 
     public String getRoomName() {
@@ -51,13 +56,13 @@ public class Room implements Serializable {
                 deck.add(new Card(symbol, value));
             }
         }
-        displayDeck();
+//        displayDeck();
     }
 
     public void shuffleDeck() {
         Collections.shuffle(deck);
         System.out.println("Deck shuffled.");
-        displayDeck();
+//        displayDeck();
     }
 
     public void dealCards(){
@@ -69,8 +74,8 @@ public class Room implements Serializable {
             currentClientIndex = (currentClientIndex + 1) % amountOfPlayers;
         }
 
-        System.out.println("Cards dealt to players.");
-        displayDeck();
+//        System.out.println("Cards dealt to players.");
+//        displayDeck();
     }
 
     public void randomTurn() {
