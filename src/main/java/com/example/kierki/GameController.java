@@ -46,6 +46,31 @@ public class GameController {
 
 
     @FXML
+    private ImageView mainCard1;
+
+    @FXML
+    private ImageView mainCard2;
+
+    @FXML
+    private ImageView mainCard3;
+
+    @FXML
+    private ImageView mainCard4;
+
+
+    @FXML
+    private Label nickname1;
+
+    @FXML
+    private Label nickname2;
+
+    @FXML
+    private Label nickname3;
+
+    @FXML
+    private Label nickname4;
+
+    @FXML
     private Label amountPlayers;
     @FXML
     private Label welcomeText;
@@ -54,6 +79,13 @@ public class GameController {
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    private void setNicknames(Room room){
+        nickname1.setText(room.getPlayers().get(0));
+        nickname2.setText(room.getPlayers().get(1));
+        nickname3.setText(room.getPlayers().get(2));
+        nickname4.setText(room.getPlayers().get(3));
     }
 
     public void updateAmountPlayers(int current) {
@@ -77,29 +109,30 @@ public class GameController {
 
         Platform.runLater(() -> {
             setReverseCards();
-            setArrows(room);
+            updateArrows(room.getTurn());
+            setNicknames(room);
             initializeCards();
             updateCardFlowPane(room);
         });
     }
 
+    private void updateArrows(int turn){
+        arrow1.setOpacity(turn == 0 ? 1 : 0);
+        arrow2.setOpacity(turn == 1 ? 1 : 0);
+        arrow3.setOpacity(turn == 2 ? 1 : 0);
+        arrow4.setOpacity(turn == 3 ? 1 : 0);
+    }
+
     public void game(Room room){
-//        Platform.runLater(() -> {
-//
-//        });
+        Platform.runLater(() -> {
+            updateArrows(room.getTurn());
+        });
     }
 
     private void setReverseCards(){
         reverse1.setOpacity(1);
         reverse2.setOpacity(1);
         reverse3.setOpacity(1);
-    }
-    private void setArrows(Room room){
-        int turn = room.getTurn();
-        arrow1.setOpacity(turn == 0 ? 1 : 0);
-        arrow2.setOpacity(turn == 1 ? 1 : 0);
-        arrow3.setOpacity(turn == 2 ? 1 : 0);
-        arrow4.setOpacity(turn == 3 ? 1 : 0);
     }
     public void initializeCards() {
         cardImageViews = new ImageView[13];

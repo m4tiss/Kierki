@@ -133,6 +133,21 @@ public class Server {
             out.writeObject(rooms.get(idCurrentRoom));
             out.flush();
         }
+        private void broadcastToSameRoomPlayers() throws IOException {
+            int sendingClientRoom = clientRooms.get(clientId);
+
+            for (Map.Entry<Integer, ObjectOutputStream> entry : outputStreams.entrySet()) {
+                int targetClientId = entry.getKey();
+                ObjectOutputStream targetOutputStream = entry.getValue();
+
+                if (clientRooms.containsKey(targetClientId) && clientRooms.get(targetClientId) == sendingClientRoom) {
+                    targetOutputStream.reset();
+                    targetOutputStream.writeObject(takeCurrentRoom());
+                    targetOutputStream.flush();
+                    System.out.println("wysyłąłem pokój do : "+targetClientId);
+                }
+            }
+        }
         private void game() throws IOException {
             while(true){
                 int chosenValue = in.readInt();
@@ -142,20 +157,7 @@ public class Server {
                     System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
                     System.out.println(chosenValue+chosenSymbol);
                     takeCurrentRoom().nextTurn();
-
-                    int sendingClientRoom = clientRooms.get(clientId);
-
-                    for (Map.Entry<Integer, ObjectOutputStream> entry : outputStreams.entrySet()) {
-                        int targetClientId = entry.getKey();
-                        ObjectOutputStream targetOutputStream = entry.getValue();
-
-                        if (clientRooms.containsKey(targetClientId) && clientRooms.get(targetClientId) == sendingClientRoom) {
-                            targetOutputStream.reset();
-                            targetOutputStream.writeObject(takeCurrentRoom());
-                            targetOutputStream.flush();
-                            System.out.println("wysyłąłem pokój do : "+targetClientId);
-                        }
-                    }
+                    broadcastToSameRoomPlayers();
                 }
             }
         }
