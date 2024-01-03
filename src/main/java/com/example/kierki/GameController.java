@@ -1,4 +1,5 @@
 package com.example.kierki;
+
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -77,11 +78,22 @@ public class GameController {
     private Client client;
     private ImageView[] cardImageViews;
 
+    private ImageView[] mainCards;
+
+    public void initMainCards() {
+        this.mainCards = new ImageView[4];
+        mainCards[0] = mainCard1;
+        mainCards[1] = mainCard2;
+        mainCards[2] = mainCard3;
+        mainCards[3] = mainCard4;
+        for (int i = 0; i < 4; i++) mainCards[i].setOpacity(1);
+    }
+
     public void setClient(Client client) {
         this.client = client;
     }
 
-    private void setNicknames(Room room){
+    private void setNicknames(Room room) {
         nickname1.setText(room.getPlayers().get(0));
         nickname2.setText(room.getPlayers().get(1));
         nickname3.setText(room.getPlayers().get(2));
@@ -92,20 +104,22 @@ public class GameController {
         String newText = current + "/" + 4;
         System.out.println(newText);
         Platform.runLater(() -> {
-                amountPlayers.setText(newText);
+            amountPlayers.setText(newText);
         });
     }
 
-    public void startGame(){
+    public void startGame() {
+        initMainCards();
         Platform.runLater(() -> {
             mainScene.getChildren().remove(welcomeText);
             mainScene.getChildren().remove(amountPlayers);
         });
     }
 
-    public void drawGame(Room room){
+    public void drawGame(Room room) {
         System.out.println("gotowy");
-        System.out.println("turan"+room.getTurn());
+        System.out.println("turan" + room.getTurn());
+
 
         Platform.runLater(() -> {
             setReverseCards();
@@ -116,24 +130,36 @@ public class GameController {
         });
     }
 
-    private void updateArrows(int turn){
+    private void updateArrows(int turn) {
         arrow1.setOpacity(turn == 0 ? 1 : 0);
         arrow2.setOpacity(turn == 1 ? 1 : 0);
         arrow3.setOpacity(turn == 2 ? 1 : 0);
         arrow4.setOpacity(turn == 3 ? 1 : 0);
     }
 
-    public void game(Room room){
+    private void drawActualCard(Room room) {
+        int previousTurn;
+        if (room.getTurn() == 0) previousTurn = 3;
+        else previousTurn = room.getTurn() - 1;
+        Card card = room.getActualCard(room.getClientsID().get(previousTurn));
+        String nameCard = "file:cards/" + card.getValue() + card.getSymbol() + ".png";
+        Image cardImage = new Image(nameCard);
+        mainCards[previousTurn].setImage(cardImage);
+    }
+
+    public void game(Room room) {
         Platform.runLater(() -> {
+            if (room.checkActualPlay() != 0) drawActualCard(room);
             updateArrows(room.getTurn());
         });
     }
 
-    private void setReverseCards(){
+    private void setReverseCards() {
         reverse1.setOpacity(1);
         reverse2.setOpacity(1);
         reverse3.setOpacity(1);
     }
+
     public void initializeCards() {
         cardImageViews = new ImageView[13];
         for (int i = 0; i < cardImageViews.length; i++) {
@@ -144,9 +170,11 @@ public class GameController {
             addHoverEffect(cardImageViews[i]);
         }
     }
+
     private void handleCardClick(int value, String symbol) throws IOException {
-        client.sendMove(value,symbol);
+        client.sendMove(value, symbol);
     }
+
     private void updateCardFlowPane(Room room) {
         cardArea.getChildren().clear();
         for (ImageView cardImageView : cardImageViews) {
@@ -155,19 +183,20 @@ public class GameController {
 
         ArrayList<Card> clientCards = room.getCardsFromClientID(client.getID());
         for (int i = 0; i < clientCards.size(); i++) {
-            String nameCard = "file:cards/"+clientCards.get(i).getValue()+clientCards.get(i).getSymbol()+".png";
-            Image cardImage =  new Image(nameCard);
+            String nameCard = "file:cards/" + clientCards.get(i).getValue() + clientCards.get(i).getSymbol() + ".png";
+            Image cardImage = new Image(nameCard);
             cardImageViews[i].setImage(cardImage);
             int finalI = i;
             cardImageViews[i].setOnMouseClicked(event -> {
                 try {
-                    handleCardClick(clientCards.get(finalI).getValue(),clientCards.get(finalI).getSymbol());
+                    handleCardClick(clientCards.get(finalI).getValue(), clientCards.get(finalI).getSymbol());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             });
         }
     }
+
     private void addHoverEffect(ImageView imageView) {
         final double scaleFactorOnHover = 1.2;
         final Duration duration = Duration.millis(200);

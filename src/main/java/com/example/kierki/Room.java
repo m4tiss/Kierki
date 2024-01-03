@@ -1,10 +1,7 @@
 package com.example.kierki;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
 
 public class Room implements Serializable {
 
@@ -22,6 +19,8 @@ public class Room implements Serializable {
 
     private int turn;
 
+    private HashMap<Integer,Card> actualPlay;
+
     public Room(String roomName, int idRoom) {
         this.roomName = roomName;
         this.players = new ArrayList<>();
@@ -30,10 +29,24 @@ public class Room implements Serializable {
         this.amountOfPlayers = 0;
         this.idRoom = idRoom;
         this.points = new int[4];
+        this.actualPlay = new HashMap<>();
         Arrays.fill(this.points, 0);
         initializeDeck();
     }
 
+    public void setActualCard(int clientID, Card card){
+        actualPlay.put(clientID,card);
+    }
+
+    public Card getActualCard(int clientID){
+        return actualPlay.get(clientID);
+    }
+    public void resetActualCards(){
+        actualPlay.clear();
+    }
+    public int checkActualPlay(){
+        return actualPlay.size();
+    }
     public ArrayList<Integer> getClientsID() {
         return clientsID;
     }

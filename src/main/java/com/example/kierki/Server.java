@@ -156,6 +156,15 @@ public class Server {
                     System.out.println("id klienta: " +clientId);
                     System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
                     System.out.println(chosenValue+chosenSymbol);
+
+
+                    if(takeCurrentRoom().checkActualPlay()==4)takeCurrentRoom().resetActualCards();
+                    else{
+                        Card card = new Card(chosenSymbol,chosenValue);
+                        card.setClientID(clientId);
+                        takeCurrentRoom().setActualCard(clientId,card);
+                    }
+
                     takeCurrentRoom().nextTurn();
                     broadcastToSameRoomPlayers();
                 }
