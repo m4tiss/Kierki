@@ -142,14 +142,26 @@ public class GameController {
         if (room.getTurn() == 0) previousTurn = 3;
         else previousTurn = room.getTurn() - 1;
         Card card = room.getActualCard(room.getClientsID().get(previousTurn));
-        String nameCard = "file:cards/" + card.getValue() + card.getSymbol() + ".png";
-        Image cardImage = new Image(nameCard);
-        mainCards[previousTurn].setImage(cardImage);
+        if(card!=null){
+            String nameCard = "file:cards/" + card.getValue() + card.getSymbol() + ".png";
+            Image cardImage = new Image(nameCard);
+            mainCards[previousTurn].setImage(cardImage);
+        }
+    }
+
+    private void resetActualCards(){
+        for (int i = 0; i < 4; i++) {
+            String nameCard = "file:cards/reverseCard.png";
+            Image cardImage = new Image(nameCard);
+            mainCards[i].setImage(cardImage);
+        }
     }
 
     public void game(Room room) {
         Platform.runLater(() -> {
-            if (room.checkActualPlay() != 0) drawActualCard(room);
+            System.out.println("Rozmiar haszMapy:"+room.checkActualPlay());
+            if (room.checkActualPlay() == 1)resetActualCards();
+            drawActualCard(room);
             updateArrows(room.getTurn());
         });
     }

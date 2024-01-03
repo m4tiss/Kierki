@@ -159,11 +159,10 @@ public class Server {
 
 
                     if(takeCurrentRoom().checkActualPlay()==4)takeCurrentRoom().resetActualCards();
-                    else{
-                        Card card = new Card(chosenSymbol,chosenValue);
-                        card.setClientID(clientId);
-                        takeCurrentRoom().setActualCard(clientId,card);
-                    }
+                    Card card = new Card(chosenSymbol,chosenValue);
+                    card.setClientID(clientId);
+                    takeCurrentRoom().setActualCard(clientId,card);
+
 
                     takeCurrentRoom().nextTurn();
                     broadcastToSameRoomPlayers();
