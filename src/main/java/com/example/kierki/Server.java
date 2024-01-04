@@ -149,15 +149,14 @@ public class Server {
             }
         }
 
-        private boolean validateCardMove(int chosenValue, String chosenSymbol){
+        private boolean validateCardMove(String chosenSymbol){
             ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
 
             String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-            int currentValue = takeCurrentRoom().getFirstCardOnTable().getValue();
 
             if(!Objects.equals(chosenSymbol, currentSymbol)){
                 //Sprawdzenie czy user ma w talii taki kolor
-
+                System.out.println("Chce wystawić innt kolor");
                 List<String> availableColors = new ArrayList<>();
                 for (Card card : clientDeck) {
                     String symbol = card.getSymbol();
@@ -165,9 +164,16 @@ public class Server {
                         availableColors.add(symbol);
                     }
                 }
-                if(availableColors.contains(chosenSymbol))return false;
+                System.out.println(availableColors);
+                System.out.println("chosen"+chosenSymbol);
+                if(availableColors.contains(currentSymbol)){
+                    System.out.println("Zwróce false");
+                    return false;
+                }
+                System.out.println("Zwróce true w ifie");
                 return true;
             }
+            System.out.println("Zwróce true");
             return true;
         }
 
@@ -234,8 +240,7 @@ public class Server {
                 int chosenValue = in.readInt();
                 String chosenSymbol = in.readUTF();
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
-                    System.out.println("ILOŚĆ kart w pleju"+takeCurrentRoom().checkActualPlay()+"\n");
-
+                    System.out.println(takeCurrentRoom().getFirstCardOnTable().getSymbol());
                     if(takeCurrentRoom().checkActualPlay()==0){
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
@@ -244,7 +249,7 @@ public class Server {
                         takeCurrentRoom().nextTurn();
                     }
                     else if(takeCurrentRoom().checkActualPlay()>=1){
-                        if(!validateCardMove(chosenValue, chosenSymbol))continue;
+                        if(!validateCardMove(chosenSymbol))continue;
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
                         takeCurrentRoom().setActualCard(clientId,card);
@@ -252,7 +257,6 @@ public class Server {
                     }
                     broadcastToSameRoomPlayers();
                     if(takeCurrentRoom().checkActualPlay()>=4){
-                        System.out.println("Wyświtliłem karte ostatnią");
                         sleep(1500);
                         sumPoints();
                         removeMainCards();

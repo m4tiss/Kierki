@@ -120,13 +120,13 @@ public class GameController {
         });
     }
 
-    public void drawGame(Room room) {
+    public void drawGame(Room room,int clientID) {
 
         Platform.runLater(() -> {
             setReverseCards();
             updateArrows(room.getTurn());
             setNicknames(room);
-            initializeCards();
+            updateCards(room,clientID);
             updateCardFlowPane(room);
         });
     }
@@ -175,17 +175,6 @@ public class GameController {
         reverse1.setOpacity(1);
         reverse2.setOpacity(1);
         reverse3.setOpacity(1);
-    }
-
-    public void initializeCards() {
-        cardImageViews = new ImageView[13];
-        for (int i = 0; i < cardImageViews.length; i++) {
-            cardImageViews[i] = new ImageView();
-            cardImageViews[i].setFitWidth(80);
-            cardImageViews[i].setPreserveRatio(true);
-            cardImageViews[i].cursorProperty().setValue(Cursor.HAND);
-            addHoverEffect(cardImageViews[i]);
-        }
     }
 
     public int calculateCards(Room room,int clientID) {
