@@ -2,12 +2,9 @@ package com.example.kierki;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 public class Server {
@@ -148,22 +145,52 @@ public class Server {
                 }
             }
         }
+
+        private boolean validateCardMove(int chosenValue, String chosenSymbol){
+            ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
+
+            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
+            int currentValue = takeCurrentRoom().getFirstCardOnTable().getValue();
+
+            if(!Objects.equals(chosenSymbol, currentSymbol)){
+                //Sprawdzenie czy user ma w talii taki kolor
+
+                List<String> availableColors = new ArrayList<>();
+                for (Card card : clientDeck) {
+                    String symbol = card.getSymbol();
+                    if (!availableColors.contains(symbol)) {
+                        availableColors.add(symbol);
+                    }
+                }
+                if(availableColors.contains(chosenSymbol))return false;
+            }
+            return true;
+        }
         private void game() throws IOException {
             while(true){
                 int chosenValue = in.readInt();
                 String chosenSymbol = in.readUTF();
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
+
+
                     System.out.println("id klienta: " +clientId);
                     System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
                     System.out.println(chosenValue+chosenSymbol);
 
 
-                    if(takeCurrentRoom().checkActualPlay()==4)takeCurrentRoom().resetActualCards();
-                    Card card = new Card(chosenSymbol,chosenValue);
-                    card.setClientID(clientId);
-                    takeCurrentRoom().setActualCard(clientId,card);
-
-
+                    if(takeCurrentRoom().checkActualPlay()>=4)takeCurrentRoom().resetActualCards();
+                    if(takeCurrentRoom().checkActualPlay()==0){
+                        Card card = new Card(chosenSymbol,chosenValue);
+                        card.setClientID(clientId);
+                        takeCurrentRoom().setActualCard(clientId,card);
+                        takeCurrentRoom().setFirstCardOnTable(card);
+                    }
+                    else if(takeCurrentRoom().checkActualPlay()>=1){
+                        if(!validateCardMove(chosenValue, chosenSymbol))continue;
+                        Card card = new Card(chosenSymbol,chosenValue);
+                        card.setClientID(clientId);
+                        takeCurrentRoom().setActualCard(clientId,card);
+                    }
                     takeCurrentRoom().nextTurn();
                     broadcastToSameRoomPlayers();
                 }

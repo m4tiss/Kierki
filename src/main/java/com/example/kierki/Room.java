@@ -13,6 +13,18 @@ public class Room implements Serializable {
     private ArrayList<Integer> clientsID;
 
     private boolean gameInProgress;
+
+    private int round;
+
+    public Card getFirstCardOnTable() {
+        return firstCardOnTable;
+    }
+
+    public void setFirstCardOnTable(Card firstCardOnTable) {
+        this.firstCardOnTable = firstCardOnTable;
+    }
+
+    private Card firstCardOnTable;
     private ArrayList<Card> deck;
 
     private int[] points;
@@ -29,6 +41,8 @@ public class Room implements Serializable {
         this.amountOfPlayers = 0;
         this.idRoom = idRoom;
         this.points = new int[4];
+        this.round=0;
+        this.firstCardOnTable = new Card("XXX",99);
         this.actualPlay = new HashMap<>();
         Arrays.fill(this.points, 0);
         initializeDeck();
@@ -36,6 +50,9 @@ public class Room implements Serializable {
 
     public void setActualCard(int clientID, Card card){
         actualPlay.put(clientID,card);
+    }
+    public void nextRound() {
+        round++;
     }
 
     public Card getActualCard(int clientID){
