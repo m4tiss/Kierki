@@ -126,6 +126,7 @@ public class Server {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            takeCurrentRoom().initializePoints();
             out.reset();
             out.writeObject(rooms.get(idCurrentRoom));
             out.flush();
@@ -141,7 +142,7 @@ public class Server {
                     targetOutputStream.reset();
                     targetOutputStream.writeObject(takeCurrentRoom());
                     targetOutputStream.flush();
-                    System.out.println("wysyłąłem pokój do : "+targetClientId);
+//                    System.out.println("wysyłąłem pokój do : "+targetClientId);
                 }
             }
         }
@@ -163,8 +164,68 @@ public class Server {
                     }
                 }
                 if(availableColors.contains(chosenSymbol))return false;
+                return true;
             }
             return true;
+        }
+
+        private void handleRound1() {
+            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
+
+            ArrayList<Card> winCard = new ArrayList<>();
+            List<Integer> clientsID = takeCurrentRoom().getClientsID();
+            for (Integer clientID : clientsID) {
+                Card card = takeCurrentRoom().getActualCard(clientID);
+                winCard.add(card);
+            }
+            winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
+            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
+            Collections.sort(winCard, valueComparator);
+
+            Card winningCard = winCard.get(0);
+            HashMap<Integer,Card> actualPlay = takeCurrentRoom().getActualPlay();
+            int winningClientID = 0;
+            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
+                if (entry.getValue().equals(winningCard)) {
+                    winningClientID = entry.getKey();
+                    break;
+                }
+            }
+            takeCurrentRoom().setPoints(winningClientID,-20);
+            takeCurrentRoom().nextTurnNumbered(winningClientID);
+            for(int i=0;i<4;i++) {
+                System.out.println("Punkty gracza"+takeCurrentRoom().getClientsID().get(i)+": "+takeCurrentRoom().getPoints().get(takeCurrentRoom().getClientsID().get(i)));
+            }
+        }
+
+        private void handleRound2() {
+            // Code for handling round 1
+        }
+        private void sumPoints(){
+            int round = takeCurrentRoom().getRound();
+            switch (round) {
+                case 1:
+                    handleRound1();
+                    break;
+                case 2:
+                   handleRound2();
+                default:
+                    // Code to be executed for other rounds (if any)
+            }
+        }
+
+        private void removeMainCards(){
+            ArrayList<Card> updatedDeck = takeCurrentRoom().getDeck();
+
+            HashMap<Integer,Card> actualPlay = takeCurrentRoom().getActualPlay();
+
+            for (Card card : actualPlay.values()) {
+                updatedDeck.removeIf(deckCard -> deckCard.equals(card));
+            }
+
+            takeCurrentRoom().setDeck(updatedDeck);
+            takeCurrentRoom().displayDeck();
+            takeCurrentRoom().resetActualCards();
         }
         private void game() throws IOException {
             while(true){
@@ -173,25 +234,29 @@ public class Server {
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
 
 
-                    System.out.println("id klienta: " +clientId);
-                    System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
-                    System.out.println(chosenValue+chosenSymbol);
+//                    System.out.println("id klienta: " +clientId);
+//                    System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
+//                    System.out.println(chosenValue+chosenSymbol);
 
 
-                    if(takeCurrentRoom().checkActualPlay()>=4)takeCurrentRoom().resetActualCards();
+                    if(takeCurrentRoom().checkActualPlay()>=4){
+                        sumPoints();
+                        removeMainCards();
+                    }
                     if(takeCurrentRoom().checkActualPlay()==0){
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
                         takeCurrentRoom().setActualCard(clientId,card);
                         takeCurrentRoom().setFirstCardOnTable(card);
+                        takeCurrentRoom().nextTurn();
                     }
                     else if(takeCurrentRoom().checkActualPlay()>=1){
                         if(!validateCardMove(chosenValue, chosenSymbol))continue;
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
                         takeCurrentRoom().setActualCard(clientId,card);
+                        takeCurrentRoom().nextTurn();
                     }
-                    takeCurrentRoom().nextTurn();
                     broadcastToSameRoomPlayers();
                 }
             }

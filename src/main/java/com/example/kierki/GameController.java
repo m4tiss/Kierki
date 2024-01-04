@@ -15,6 +15,10 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static java.lang.Thread.sleep;
 
 public class GameController {
     @FXML
@@ -142,14 +146,14 @@ public class GameController {
         if (room.getTurn() == 0) previousTurn = 3;
         else previousTurn = room.getTurn() - 1;
         Card card = room.getActualCard(room.getClientsID().get(previousTurn));
-        if(card!=null){
+        if (card != null) {
             String nameCard = "file:cards/" + card.getValue() + card.getSymbol() + ".png";
             Image cardImage = new Image(nameCard);
             mainCards[previousTurn].setImage(cardImage);
         }
     }
 
-    private void resetActualCards(){
+    private void resetActualCards() {
         for (int i = 0; i < 4; i++) {
             String nameCard = "file:cards/reverseCard.png";
             Image cardImage = new Image(nameCard);
@@ -157,12 +161,14 @@ public class GameController {
         }
     }
 
-    public void game(Room room) {
+    public void game(Room room,int clientID) {
         Platform.runLater(() -> {
-            System.out.println("Rozmiar haszMapy:"+room.checkActualPlay());
-            if (room.checkActualPlay() == 1)resetActualCards();
+            System.out.println("Rozmiar haszMapy:" + room.checkActualPlay());
+            if (room.checkActualPlay() == 1) resetActualCards();
             drawActualCard(room);
             updateArrows(room.getTurn());
+            updateCards(room,clientID);
+            updateCardFlowPane(room);
         });
     }
 
@@ -183,8 +189,35 @@ public class GameController {
         }
     }
 
+    public int calculateCards(Room room,int clientID) {
+        int amountClientCards=0;
+        for(Card card : room.getDeck()){
+            if(card.getClientID()==clientID)amountClientCards++;
+        }
+        return amountClientCards;
+    }
+    public void updateCards(Room room,int clientID) {
+        cardImageViews = null;
+        int size = calculateCards(room,clientID);
+        cardImageViews = new ImageView[size];
+        for (int i = 0; i < cardImageViews.length; i++) {
+            cardImageViews[i] = new ImageView();
+            cardImageViews[i].setFitWidth(80);
+            cardImageViews[i].setPreserveRatio(true);
+            cardImageViews[i].cursorProperty().setValue(Cursor.HAND);
+            addHoverEffect(cardImageViews[i]);
+        }
+    }
+
     private void handleCardClick(int value, String symbol) throws IOException {
         client.sendMove(value, symbol);
+    }
+
+    private void sortCard(ArrayList<Card> clientCards) {
+        Comparator<Card> symbolThenValueComparator = Comparator.comparing(Card::getSymbol)
+                .thenComparing(Comparator.comparing(Card::getValue).reversed());
+
+        Collections.sort(clientCards, symbolThenValueComparator);
     }
 
     private void updateCardFlowPane(Room room) {
@@ -194,6 +227,8 @@ public class GameController {
         }
 
         ArrayList<Card> clientCards = room.getCardsFromClientID(client.getID());
+        sortCard(clientCards);
+
         for (int i = 0; i < clientCards.size(); i++) {
             String nameCard = "file:cards/" + clientCards.get(i).getValue() + clientCards.get(i).getSymbol() + ".png";
             Image cardImage = new Image(nameCard);

@@ -58,7 +58,7 @@ public class ReceiverClient implements Runnable {
         Room room = (Room) in.readObject();
         System.out.println("ZMIENIŁA SIĘ TURA");
         System.out.println("TURA:"+ room.getTurn());
-        gameController.game(room);
+        gameController.game(room,clientId);
     }
     @Override
     public void run() {

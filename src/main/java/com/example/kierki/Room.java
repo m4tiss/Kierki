@@ -25,13 +25,22 @@ public class Room implements Serializable {
     }
 
     private Card firstCardOnTable;
+
+    public ArrayList<Card> getDeck() {
+        return deck;
+    }
+
+    public void setDeck(ArrayList<Card> deck) {
+        this.deck = deck;
+    }
+
     private ArrayList<Card> deck;
 
-    private int[] points;
+    private HashMap<Integer, Integer> points;
 
     private int turn;
 
-    private HashMap<Integer,Card> actualPlay;
+    private HashMap<Integer, Card> actualPlay;
 
     public Room(String roomName, int idRoom) {
         this.roomName = roomName;
@@ -40,30 +49,57 @@ public class Room implements Serializable {
         this.gameInProgress = false;
         this.amountOfPlayers = 0;
         this.idRoom = idRoom;
-        this.points = new int[4];
-        this.round=0;
-        this.firstCardOnTable = new Card("XXX",99);
+        this.points = new HashMap<>();
+        this.round = 1;
+        this.firstCardOnTable = new Card("XXX", 99);
         this.actualPlay = new HashMap<>();
-        Arrays.fill(this.points, 0);
         initializeDeck();
     }
 
-    public void setActualCard(int clientID, Card card){
-        actualPlay.put(clientID,card);
+    public void setActualCard(int clientID, Card card) {
+        actualPlay.put(clientID, card);
     }
+
+    public HashMap<Integer, Integer> getPoints() {
+        return points;
+    }
+
+    public void setPoints(int clientID, int clientPoints) {
+        int currentPoints = points.get(clientID);
+        currentPoints += clientPoints;
+        points.put(clientID, currentPoints);
+    }
+
     public void nextRound() {
         round++;
     }
 
-    public Card getActualCard(int clientID){
+    public int getRound() {
+        return round;
+    }
+
+    public void initializePoints() {
+        for (int i = 0; i < 4; i++) {
+            points.put(clientsID.get(i), 0);
+        }
+    }
+
+    public HashMap<Integer, Card> getActualPlay() {
+        return actualPlay;
+    }
+
+    public Card getActualCard(int clientID) {
         return actualPlay.get(clientID);
     }
-    public void resetActualCards(){
+
+    public void resetActualCards() {
         actualPlay.clear();
     }
-    public int checkActualPlay(){
+
+    public int checkActualPlay() {
         return actualPlay.size();
     }
+
     public ArrayList<Integer> getClientsID() {
         return clientsID;
     }
@@ -91,16 +127,14 @@ public class Room implements Serializable {
                 deck.add(new Card(symbol, value));
             }
         }
-//        displayDeck();
     }
 
     public void shuffleDeck() {
         Collections.shuffle(deck);
         System.out.println("Deck shuffled.");
-//        displayDeck();
     }
 
-    public void dealCards(){
+    public void dealCards() {
         int currentClientIndex = 0;
 
         for (Card card : deck) {
@@ -108,9 +142,6 @@ public class Room implements Serializable {
             card.setClientID(currentClientID);
             currentClientIndex = (currentClientIndex + 1) % amountOfPlayers;
         }
-
-//        System.out.println("Cards dealt to players.");
-//        displayDeck();
     }
 
     public void randomTurn() {
@@ -123,7 +154,11 @@ public class Room implements Serializable {
         turn = (turn + 1) % 4;
         System.out.println("Next turn: " + turn);
     }
-    public void addPlayer(String nickname,int clientID) {
+    public void nextTurnNumbered(int clientID){
+        turn = clientsID.indexOf(clientID);
+    }
+
+    public void addPlayer(String nickname, int clientID) {
         players.add(nickname);
         amountOfPlayers++;
         clientsID.add(clientID);
@@ -142,10 +177,11 @@ public class Room implements Serializable {
     public int getTurn() {
         return turn;
     }
+
     public ArrayList<Card> getCardsFromClientID(int clientID) {
         ArrayList<Card> clientsCards = new ArrayList<>();
         for (Card card : deck) {
-            if(card.getClientID()==clientID){
+            if (card.getClientID() == clientID) {
                 clientsCards.add(card);
             }
         }
@@ -155,6 +191,7 @@ public class Room implements Serializable {
     public ArrayList<String> getPlayers() {
         return players;
     }
+
     //    public void setDeck(ArrayList<Card> deck) {
 //        this.deck = deck;
 //    }
