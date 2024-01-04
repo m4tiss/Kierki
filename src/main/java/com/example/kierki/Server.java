@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
+import static java.lang.Thread.sleep;
+
 public class Server {
     private static final int PORT = 8888;
 
@@ -227,22 +229,13 @@ public class Server {
             takeCurrentRoom().displayDeck();
             takeCurrentRoom().resetActualCards();
         }
-        private void game() throws IOException {
+        private void game() throws IOException, InterruptedException {
             while(true){
                 int chosenValue = in.readInt();
                 String chosenSymbol = in.readUTF();
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
+                    System.out.println("ILOŚĆ kart w pleju"+takeCurrentRoom().checkActualPlay()+"\n");
 
-
-//                    System.out.println("id klienta: " +clientId);
-//                    System.out.println("Id tego co ma ture" + takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()));
-//                    System.out.println(chosenValue+chosenSymbol);
-
-
-                    if(takeCurrentRoom().checkActualPlay()>=4){
-                        sumPoints();
-                        removeMainCards();
-                    }
                     if(takeCurrentRoom().checkActualPlay()==0){
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
@@ -258,6 +251,13 @@ public class Server {
                         takeCurrentRoom().nextTurn();
                     }
                     broadcastToSameRoomPlayers();
+                    if(takeCurrentRoom().checkActualPlay()>=4){
+                        System.out.println("Wyświtliłem karte ostatnią");
+                        sleep(1500);
+                        sumPoints();
+                        removeMainCards();
+                        broadcastToSameRoomPlayers();
+                    }
                 }
             }
         }
@@ -274,14 +274,11 @@ public class Server {
                 out.flush();
                 nickname = in.readUTF();
 
-//                System.out.print("Dołączył gracz o nicku:");
-//                System.out.println(nickname);
-
                 sendRooms();
                 waitOnRoomAndBroadcast();
                 startOfGame();
                 game();
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }

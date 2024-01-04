@@ -56,8 +56,6 @@ public class ReceiverClient implements Runnable {
 
     private void game() throws IOException, ClassNotFoundException {
         Room room = (Room) in.readObject();
-        System.out.println("ZMIENIŁA SIĘ TURA");
-        System.out.println("TURA:"+ room.getTurn());
         gameController.game(room,clientId);
     }
     @Override

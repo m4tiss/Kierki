@@ -121,9 +121,6 @@ public class GameController {
     }
 
     public void drawGame(Room room) {
-        System.out.println("gotowy");
-        System.out.println("turan" + room.getTurn());
-
 
         Platform.runLater(() -> {
             setReverseCards();
@@ -146,10 +143,12 @@ public class GameController {
         if (room.getTurn() == 0) previousTurn = 3;
         else previousTurn = room.getTurn() - 1;
         Card card = room.getActualCard(room.getClientsID().get(previousTurn));
+
         if (card != null) {
             String nameCard = "file:cards/" + card.getValue() + card.getSymbol() + ".png";
             Image cardImage = new Image(nameCard);
             mainCards[previousTurn].setImage(cardImage);
+            System.out.println("rysuje dla:"+previousTurn);
         }
     }
 
@@ -163,10 +162,10 @@ public class GameController {
 
     public void game(Room room,int clientID) {
         Platform.runLater(() -> {
-            System.out.println("Rozmiar haszMapy:" + room.checkActualPlay());
-            if (room.checkActualPlay() == 1) resetActualCards();
-            drawActualCard(room);
-            updateArrows(room.getTurn());
+            System.out.println("Tura:" + room.getTurn());
+            if (room.checkActualPlay() == 0)resetActualCards();
+            if (room.checkActualPlay() != 0)drawActualCard(room);
+            if (room.checkActualPlay() != 4)updateArrows(room.getTurn());
             updateCards(room,clientID);
             updateCardFlowPane(room);
         });
