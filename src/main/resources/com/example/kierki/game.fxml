@@ -51,5 +51,25 @@
             <Font size="22.0" />
          </font>
       </Label>
+      <Label fx:id="points1" alignment="CENTER" layoutX="372.0" layoutY="506.0" prefHeight="32.0" prefWidth="120.0" style="-fx-text-alignment: center;" textAlignment="RIGHT" textFill="WHITE">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label fx:id="points2" alignment="CENTER" layoutX="532.0" layoutY="506.0" prefHeight="32.0" prefWidth="120.0" style="-fx-text-alignment: center;" textAlignment="RIGHT" textFill="WHITE">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label fx:id="points3" alignment="CENTER" layoutX="692.0" layoutY="506.0" prefHeight="32.0" prefWidth="120.0" style="-fx-text-alignment: center;" textAlignment="RIGHT" textFill="WHITE">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label fx:id="points4" alignment="CENTER" layoutX="852.0" layoutY="506.0" prefHeight="32.0" prefWidth="120.0" style="-fx-text-alignment: center;" textAlignment="RIGHT" textFill="WHITE">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

@@ -26,14 +26,6 @@ public class Room implements Serializable {
 
     private Card firstCardOnTable;
 
-    public ArrayList<Card> getDeck() {
-        return deck;
-    }
-
-    public void setDeck(ArrayList<Card> deck) {
-        this.deck = deck;
-    }
-
     private ArrayList<Card> deck;
 
     private HashMap<Integer, Integer> points;
@@ -54,6 +46,14 @@ public class Room implements Serializable {
         this.firstCardOnTable = new Card("XXX", 99);
         this.actualPlay = new HashMap<>();
         initializeDeck();
+    }
+
+    public ArrayList<Card> getDeck() {
+        return deck;
+    }
+
+    public void setDeck(ArrayList<Card> deck) {
+        this.deck = deck;
     }
 
     public void setActualCard(int clientID, Card card) {

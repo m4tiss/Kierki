@@ -79,6 +79,18 @@ public class GameController {
     private Label amountPlayers;
     @FXML
     private Label welcomeText;
+
+    @FXML
+    private Label points1;
+
+    @FXML
+    private Label points2;
+
+    @FXML
+    private Label points3;
+
+    @FXML
+    private Label points4;
     private Client client;
     private ImageView[] cardImageViews;
 
@@ -93,6 +105,13 @@ public class GameController {
         for (int i = 0; i < 4; i++) mainCards[i].setOpacity(1);
     }
 
+    public void updatePoints(Room room){
+
+        points1.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(0))));
+        points2.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(1))));
+        points3.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(2))));
+        points4.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(3))));
+    }
     public void setClient(Client client) {
         this.client = client;
     }
@@ -128,6 +147,7 @@ public class GameController {
             setNicknames(room);
             updateCards(room,clientID);
             updateCardFlowPane(room);
+            updatePoints(room);
         });
     }
 
@@ -168,6 +188,7 @@ public class GameController {
             if (room.checkActualPlay() != 4)updateArrows(room.getTurn());
             updateCards(room,clientID);
             updateCardFlowPane(room);
+            updatePoints(room);
         });
     }
 
