@@ -3,6 +3,7 @@ package com.example.kierki;
 import org.controlsfx.control.tableview2.filter.filtereditor.SouthFilter;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -172,47 +173,45 @@ public class Server {
             return true;
         }
 
-        private void handleRound1() {
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
-            ArrayList<Card> winCard = new ArrayList<>();
-            List<Integer> clientsID = takeCurrentRoom().getClientsID();
-            for (Integer clientID : clientsID) {
-                Card card = takeCurrentRoom().getActualCard(clientID);
-                winCard.add(card);
-            }
-            winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
-            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(winCard, valueComparator);
-
-            Card winningCard = winCard.get(0);
-            HashMap<Integer,Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
-                }
-            }
-            takeCurrentRoom().setPoints(winningClientID,-20);
-            takeCurrentRoom().nextTurnNumbered(winningClientID);
-        }
-
-        private void handleRound2() {
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
+        private ArrayList<Card> getCards() {
             ArrayList<Card> cards = new ArrayList<>();
             List<Integer> clientsID = takeCurrentRoom().getClientsID();
             for (Integer clientID : clientsID) {
                 Card card = takeCurrentRoom().getActualCard(clientID);
                 cards.add(card);
             }
-            // Dodano warunek dla kierów
+            return cards;
+        }
 
+        private void sortCards(List<Card> cards) {
             Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(cards, valueComparator);
+            cards.sort(valueComparator);
+        }
 
+        private int takeWinnerID(Card winningCard) {
+            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
+            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
+                if (entry.getValue().equals(winningCard)) {
+                    return entry.getKey();
+                }
+            }
+            return 0;
+        }
 
+        private void handleRound1(String currentSymbol) {
+            ArrayList<Card> winCard = getCards();
+            winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
+            sortCards(winCard);
+            Card winningCard = winCard.get(0);
+            int winningClientID = takeWinnerID(winningCard);
+            takeCurrentRoom().setPoints(winningClientID,-20);
+            takeCurrentRoom().nextTurnNumbered(winningClientID);
+        }
+
+        private void handleRound2(String currentSymbol) {
+
+            ArrayList<Card> cards = getCards();
+            sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfHearts = 0;
             for(Card card: cards){
@@ -221,35 +220,13 @@ public class Server {
                     winningCard=card;
                 }
             }
-
-            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
-                }
-            }
-
-
+            int winningClientID = takeWinnerID(winningCard);
             takeCurrentRoom().setPoints(winningClientID, -20*amountOfHearts);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
-        private void handleRound3() {
-            //bez dam -60
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
-            ArrayList<Card> cards = new ArrayList<>();
-            List<Integer> clientsID = takeCurrentRoom().getClientsID();
-            for (Integer clientID : clientsID) {
-                Card card = takeCurrentRoom().getActualCard(clientID);
-                cards.add(card);
-            }
-
-            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(cards, valueComparator);
-
-
+        private void handleRound3(String currentSymbol) {
+            ArrayList<Card> cards  = getCards();
+            sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfQueens = 0;
             for(Card card: cards){
@@ -258,34 +235,13 @@ public class Server {
                     winningCard=card;
                 }
             }
-
-            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
-                }
-            }
-
-
+            int winningClientID = takeWinnerID(winningCard);
             takeCurrentRoom().setPoints(winningClientID, -60*amountOfQueens);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
-        private void handleRound4() {
-            // bez panów; -30 pkt. za każdego wziętego króla lub waleta
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
-            ArrayList<Card> cards = new ArrayList<>();
-            List<Integer> clientsID = takeCurrentRoom().getClientsID();
-            for (Integer clientID : clientsID) {
-                Card card = takeCurrentRoom().getActualCard(clientID);
-                cards.add(card);
-            }
-
-            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(cards, valueComparator);
-
+        private void handleRound4(String currentSymbol) {
+            ArrayList<Card> cards = getCards();
+            sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfJacksAndKings = 0;
             for(Card card: cards){
@@ -294,34 +250,13 @@ public class Server {
                     winningCard=card;
                 }
             }
-
-            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
-                }
-            }
-
-
+            int winningClientID = takeWinnerID(winningCard);
             takeCurrentRoom().setPoints(winningClientID, -30*amountOfJacksAndKings);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
-        private void handleRound5() {
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
-            ArrayList<Card> cards = new ArrayList<>();
-            List<Integer> clientsID = takeCurrentRoom().getClientsID();
-            for (Integer clientID : clientsID) {
-                Card card = takeCurrentRoom().getActualCard(clientID);
-                cards.add(card);
-            }
-
-            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(cards, valueComparator);
-
-
+        private void handleRound5(String currentSymbol) {
+            ArrayList<Card> cards =  getCards();
+            sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             boolean checkHeartsKing = false;
             for(Card card: cards){
@@ -330,16 +265,7 @@ public class Server {
                     winningCard=card;
                 }
             }
-
-            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
-                }
-            }
-
+            int winningClientID = takeWinnerID(winningCard);
             if(checkHeartsKing){
                 takeCurrentRoom().setPoints(winningClientID, -150);
                 takeCurrentRoom().initializeDeck();
@@ -349,68 +275,77 @@ public class Server {
                 takeCurrentRoom().randomTurn();
                 return;
             }
-
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
-        private void handleRound6() {
-            // bez panów; -30 pkt. za każdego wziętego króla lub waleta
-            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
-
-            ArrayList<Card> cards = new ArrayList<>();
-            List<Integer> clientsID = takeCurrentRoom().getClientsID();
-            for (Integer clientID : clientsID) {
-                Card card = takeCurrentRoom().getActualCard(clientID);
-                cards.add(card);
-            }
-
-            Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
-            Collections.sort(cards, valueComparator);
-
+        private void handleRound6(String currentSymbol) {
+            ArrayList<Card> cards = getCards();
+            sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             for(Card card: cards){
                 if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
                     winningCard=card;
                 }
             }
+            int winningClientID = takeWinnerID(winningCard);
+            if(takeCurrentRoom().getDeck().size()==28||takeCurrentRoom().getDeck().size()==4)takeCurrentRoom().setPoints(winningClientID, -75);
+            takeCurrentRoom().nextTurnNumbered(winningClientID);
+        }
 
-            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
-            int winningClientID = 0;
-            for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
-                if (entry.getValue().equals(winningCard)) {
-                    winningClientID = entry.getKey();
-                    break;
+        private void handleRound7(String currentSymbol){
+            ArrayList<Card> cards = getCards();
+            sortCards(cards);
+            Card winningCard = takeCurrentRoom().getFirstCardOnTable();
+            int amountOfHearts = 0;
+            int amountOfQueens = 0;
+            int amountOfJacksAndKings = 0;
+            int checkHeartsKing = 0;
+            for(Card card: cards){
+                if(Objects.equals(card.getSymbol(), "Hearts"))amountOfHearts++;
+                if(Objects.equals(card.getValue(), 12))amountOfQueens++;
+                if(Objects.equals(card.getValue(), 11)||Objects.equals(card.getValue(), 13))amountOfJacksAndKings++;
+                if(Objects.equals(card.getValue(), 13)&&Objects.equals(card.getSymbol(), "Hearts"))checkHeartsKing=1;
+                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
+                    winningCard=card;
                 }
             }
 
-
+            int winningClientID = takeWinnerID(winningCard);
+            takeCurrentRoom().setPoints(winningClientID,-20);
+            takeCurrentRoom().setPoints(winningClientID, -20*amountOfHearts);
+            takeCurrentRoom().setPoints(winningClientID, -60*amountOfQueens);
+            takeCurrentRoom().setPoints(winningClientID, -30*amountOfJacksAndKings);
+            takeCurrentRoom().setPoints(winningClientID, -150*checkHeartsKing);
             if(takeCurrentRoom().getDeck().size()==28||takeCurrentRoom().getDeck().size()==4)takeCurrentRoom().setPoints(winningClientID, -75);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
         private void sumPoints(){
             int round = takeCurrentRoom().getRound();
-
+            String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
             switch (round) {
                 case 1:
-                    handleRound1();
+                    handleRound1(currentSymbol);
                     break;
                 case 2:
-                    handleRound2();
+                    handleRound2(currentSymbol);
                     break;
                 case 3:
-                    handleRound3();
+                    handleRound3(currentSymbol);
                     break;
                 case 4:
-                    handleRound4();
+                    handleRound4(currentSymbol);
                     break;
                 case 5:
-                    handleRound5();
+                    handleRound5(currentSymbol);
                     break;
                 case 6:
-                    handleRound6();
+                    handleRound6(currentSymbol);
+                    break;
+                case 7:
+                    handleRound7(currentSymbol);
                     break;
                 default:
-                    // Code to be executed for other rounds (if any)
+                    System.out.println("BŁAD SERWERA");
             }
         }
 
