@@ -60,6 +60,10 @@ public class Room implements Serializable {
         actualPlay.put(clientID, card);
     }
 
+    public boolean isGameInProgress() {
+        return gameInProgress;
+    }
+
     public HashMap<Integer, Integer> getPoints() {
         return points;
     }

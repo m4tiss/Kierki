@@ -49,6 +49,10 @@ public class Server {
         initObjects();
 
         ExecutorService executorService = Executors.newCachedThreadPool();
+
+        ServerInfo serverInfo = new ServerInfo();
+        executorService.execute(serverInfo);
+
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -459,6 +463,36 @@ public class Server {
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+    }
+
+    static class ServerInfo implements Runnable {
+
+        @Override
+        public void run() {
+            Scanner scanner = new Scanner(System.in);
+            int userInput=0;
+            while(true){
+                System.out.println("1 - Wyswietl statystyki serwera");
+                userInput = scanner.nextInt();
+                if (userInput == 1) {
+                    Set<Map.Entry<Integer, Room>> roomsSet = rooms.entrySet();
+                    for (Map.Entry<Integer, Room> room : roomsSet) {
+                        System.out.println("Pokój numer: " + room.getKey());
+                        ArrayList<Integer> clientsID = room.getValue().getClientsID();
+                        System.out.print("ID graczy w pokoju: ");
+                        for(Integer clientID : clientsID){
+                            System.out.print(clientID+" ");
+                        }
+                        System.out.println("\nGRA W TOKU: "+ room.getValue().isGameInProgress());
+                    }
+                }
+
+            }
+
+
+            //scanner.close();
         }
     }
 }
