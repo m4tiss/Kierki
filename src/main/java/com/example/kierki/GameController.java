@@ -91,6 +91,13 @@ public class GameController {
 
     @FXML
     private Label points4;
+
+    @FXML
+    private Label roundText;
+
+    @FXML
+    private Label roundNumber;
+
     private Client client;
     private ImageView[] cardImageViews;
 
@@ -123,6 +130,12 @@ public class GameController {
         nickname4.setText(room.getPlayers().get(3));
     }
 
+    private void updateRound(Room room) {
+            roundText.setOpacity(1);
+            roundNumber.setOpacity(1);
+            roundNumber.setText(String.valueOf(room.getRound()));
+    }
+
     public void updateAmountPlayers(int current) {
         String newText = current + "/" + 4;
         System.out.println(newText);
@@ -144,6 +157,7 @@ public class GameController {
         Platform.runLater(() -> {
             setReverseCards();
             updateArrows(room.getTurn());
+            updateRound(room);
             setNicknames(room);
             updateCards(room,clientID);
             updateCardFlowPane(room);
@@ -182,13 +196,14 @@ public class GameController {
 
     public void game(Room room,int clientID) {
         Platform.runLater(() -> {
-            System.out.println("Tura:" + room.getTurn());
+            System.out.println("ILOŚĆ KART W DECKU:" + room.getDeck().size());
             if (room.checkActualPlay() == 0)resetActualCards();
             if (room.checkActualPlay() != 0)drawActualCard(room);
             if (room.checkActualPlay() != 4)updateArrows(room.getTurn());
             updateCards(room,clientID);
             updateCardFlowPane(room);
             updatePoints(room);
+            updateRound(room);
         });
     }
 

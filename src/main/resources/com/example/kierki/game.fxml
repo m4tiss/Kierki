@@ -71,5 +71,15 @@
             <Font size="22.0" />
          </font>
       </Label>
+      <Label fx:id="roundText" layoutX="50.0" layoutY="62.0" opacity="0.0" text="Numer rozdania:" textFill="WHITE">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
+      <Label fx:id="roundNumber" layoutX="248.0" layoutY="62.0" opacity="0.0" text="1" textFill="WHITE">
+         <font>
+            <Font size="25.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

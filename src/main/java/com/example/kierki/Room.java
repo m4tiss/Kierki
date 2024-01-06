@@ -42,7 +42,7 @@ public class Room implements Serializable {
         this.amountOfPlayers = 0;
         this.idRoom = idRoom;
         this.points = new HashMap<>();
-        this.round = 1;
+        this.round = 2;
         this.firstCardOnTable = new Card("XXX", 99);
         this.actualPlay = new HashMap<>();
         initializeDeck();
@@ -116,7 +116,7 @@ public class Room implements Serializable {
         return idRoom;
     }
 
-    private void initializeDeck() {
+    public void initializeDeck() {
         deck = new ArrayList<>();
 
         String[] symbols = {"Hearts", "Diamonds", "Clubs", "Spades"};

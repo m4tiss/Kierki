@@ -144,7 +144,6 @@ public class Server {
                     targetOutputStream.reset();
                     targetOutputStream.writeObject(takeCurrentRoom());
                     targetOutputStream.flush();
-//                    System.out.println("wysyłąłem pokój do : "+targetClientId);
                 }
             }
         }
@@ -201,9 +200,6 @@ public class Server {
             }
             takeCurrentRoom().setPoints(winningClientID,-20);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
-            for(int i=0;i<4;i++) {
-                System.out.println("Punkty gracza"+takeCurrentRoom().getClientsID().get(i)+": "+takeCurrentRoom().getPoints().get(takeCurrentRoom().getClientsID().get(i)));
-            }
         }
 
         private void handleRound2() {
@@ -235,6 +231,16 @@ public class Server {
             takeCurrentRoom().displayDeck();
             takeCurrentRoom().resetActualCards();
         }
+        private void checkEndOfRound(){
+            if(takeCurrentRoom().getDeck().isEmpty()){
+                takeCurrentRoom().initializeDeck();
+                takeCurrentRoom().dealCards();
+                takeCurrentRoom().shuffleDeck();
+                takeCurrentRoom().displayDeck();
+                takeCurrentRoom().nextRound();
+                takeCurrentRoom().randomTurn();
+            }
+        }
         private void game() throws IOException, InterruptedException {
             while(true){
                 int chosenValue = in.readInt();
@@ -260,6 +266,7 @@ public class Server {
                         sleep(1500);
                         sumPoints();
                         removeMainCards();
+                        checkEndOfRound();
                         broadcastToSameRoomPlayers();
                     }
                 }
