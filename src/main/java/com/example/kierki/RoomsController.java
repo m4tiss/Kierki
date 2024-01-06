@@ -14,18 +14,21 @@ public class RoomsController {
     @FXML
     private FlowPane roomsBox;
 
-    public void addRoom(Room room) {
+    @FXML
+    void addRoomButton(ActionEvent event) throws IOException {
+    client.addRoom();
+    }
+
+        public void addRoom(Room room) {
         Platform.runLater(() -> {
             Button roomButton = new Button();
             roomButton.setText("Pokój: " + room.getRoomName() + "           " + "Graczy: " + room.getAmountOfPlayers() + "/4");
             roomButton.setMinHeight(80);
             roomButton.setMinWidth(60);
-            System.out.println("ilosc"+room.getAmountOfPlayers());
 
             if(room.getAmountOfPlayers()>=4)roomButton.setDisable(true);
 
             roomButton.setOnAction(event -> {
-                System.out.println("Kliknięto pokój: " + room.getRoomName());
                 try {
                     client.sendChosenRoom(room.getIdRoom());
                 } catch (IOException e) {
@@ -34,6 +37,12 @@ public class RoomsController {
                 client.joinToRoom();
             });
             roomsBox.getChildren().add(roomButton);
+        });
+    }
+
+    public void clearRooms(){
+        Platform.runLater(() -> {
+        roomsBox.getChildren().clear();
         });
     }
     public void setClient(Client client) {

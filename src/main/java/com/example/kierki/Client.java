@@ -64,7 +64,11 @@ public class Client {
     public void joinToRoom() {
         Scene gameScene = new Scene(gameLoader.getRoot(), 1344, 832);
         stage.setScene(gameScene);
+    }
 
+    public void addRoom() throws IOException {
+        out.writeObject(-1);
+        out.flush();
     }
 
     public void startReceiver() {

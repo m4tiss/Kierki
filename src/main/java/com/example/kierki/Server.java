@@ -24,6 +24,8 @@ public class Server {
     //mapa do trzymania klient pokój idClient,idRoom,
     private static HashMap<Integer, Integer> clientRooms;
 
+    private static ArrayList<ObjectOutputStream> clientsInLobby;
+
     private static int idRoom;
     private static int clientsId;
     private static HashMap<Integer, Semaphore> roomSemaphores;
@@ -34,9 +36,10 @@ public class Server {
         outputStreams = new HashMap<>();
         rooms = new HashMap<>();
         clientRooms = new HashMap<>();
+        clientsInLobby = new ArrayList<>();
         idRoom = 1;
         clientsId = 1;
-        rooms.put(idRoom, new Room("Zajaweczka",idRoom));
+        rooms.put(idRoom, new Room("Pokój_1",idRoom));
         idRoom++;
         roomSemaphores =new HashMap<>();
     }
@@ -89,9 +92,20 @@ public class Server {
 
         private void waitOnRoomAndBroadcast() throws IOException, ClassNotFoundException {
             Integer chosenRoom = (Integer) in.readObject();
+            while(true){
+                if(chosenRoom!=-1)break;
+                rooms.put(idRoom, new Room("Pokój_"+idRoom,idRoom));
+                idRoom++;
+                broadcastToPlayersInLobby();
+                chosenRoom = (Integer) in.readObject();
+            }
+            clientsInLobby.remove(out);
+            out.flush();
             clientRooms.put(clientId,chosenRoom);
             Room currentRoom = rooms.get(chosenRoom);
+            out.writeInt(-1);
             currentRoom.addPlayer(nickname,clientId);
+            broadcastToPlayersInLobby();
 
             roomSemaphores.putIfAbsent(chosenRoom, new Semaphore(0));
 
@@ -151,6 +165,23 @@ public class Server {
             }
         }
 
+        private void broadcastToPlayersInLobby() throws IOException {
+            for (ObjectOutputStream targetOutputStream : clientsInLobby) {
+                Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
+                targetOutputStream.writeInt(entrySet.size());
+                targetOutputStream.flush();
+
+                for (Map.Entry<Integer, Room> entry : entrySet) {
+                    targetOutputStream.reset();
+                    targetOutputStream.writeInt(entry.getKey());
+                    targetOutputStream.writeObject(entry.getValue());
+                    targetOutputStream.flush();
+                }
+            }
+        }
+
+
+
         private boolean validateCardMove(String chosenSymbol){
             ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
 
@@ -172,7 +203,6 @@ public class Server {
             }
             return true;
         }
-
         private ArrayList<Card> getCards() {
             ArrayList<Card> cards = new ArrayList<>();
             List<Integer> clientsID = takeCurrentRoom().getClientsID();
@@ -182,12 +212,10 @@ public class Server {
             }
             return cards;
         }
-
         private void sortCards(List<Card> cards) {
             Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
             cards.sort(valueComparator);
         }
-
         private int takeWinnerID(Card winningCard) {
             HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
             for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
@@ -197,7 +225,6 @@ public class Server {
             }
             return 0;
         }
-
         private void handleRound1(String currentSymbol) {
             ArrayList<Card> winCard = getCards();
             winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
@@ -207,7 +234,6 @@ public class Server {
             takeCurrentRoom().setPoints(winningClientID,-20);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
-
         private void handleRound2(String currentSymbol) {
 
             ArrayList<Card> cards = getCards();
@@ -372,6 +398,13 @@ public class Server {
                 takeCurrentRoom().randomTurn();
             }
         }
+
+        private void checkEndOfGame(){
+            if(takeCurrentRoom().getDeck().isEmpty()&&takeCurrentRoom().getRound()==7){
+                //end
+            }
+        }
+
         private void game() throws IOException, InterruptedException {
             while(true){
                 int chosenValue = in.readInt();
@@ -397,6 +430,7 @@ public class Server {
                         sleep(1500);
                         sumPoints();
                         removeMainCards();
+                        checkEndOfGame();
                         checkEndOfRound();
                         broadcastToSameRoomPlayers();
                     }
@@ -411,11 +445,13 @@ public class Server {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
-
+                //loginPanel
                 out.writeInt(clientId);
                 out.flush();
                 nickname = in.readUTF();
 
+
+                clientsInLobby.add(out);
                 sendRooms();
                 waitOnRoomAndBroadcast();
                 startOfGame();

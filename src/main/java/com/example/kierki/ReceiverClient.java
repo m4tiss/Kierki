@@ -29,11 +29,18 @@ public class ReceiverClient implements Runnable {
         client.setClientID(clientId);
     }
         private void takeRooms() throws ClassNotFoundException, IOException {
-        int amountRooms = in.readInt();
-        for (int i = 0; i < amountRooms; i++) {
-            Integer idRoom =  in.readInt();
-            Room room = (Room) in.readObject();
-            roomsController.addRoom(room);
+        while(true){
+            int amountRooms = in.readInt();
+            if(amountRooms==-1)break;
+
+            roomsController.clearRooms();
+
+            for (int i = 0; i < amountRooms; i++) {
+                Integer idRoom =  in.readInt();
+                Room room = (Room) in.readObject();
+                roomsController.addRoom(room);
+            }
+
         }
     }
 
@@ -43,8 +50,7 @@ public class ReceiverClient implements Runnable {
             numberOfPlayers = in.readInt();
             System.out.println(numberOfPlayers);
             gameController.updateAmountPlayers(numberOfPlayers);
-        }
-        System.out.println("działa");
+        };
         gameController.startGame();
     }
 
