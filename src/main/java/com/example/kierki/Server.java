@@ -36,7 +36,6 @@ public class Server {
     private static HashMap<Integer, Semaphore> roomSemaphores;
 
 
-
     /**
      * Inicjalizuje wszystkie niezbędne obiekty, takie jak mapy, listy, semafory, oraz ustawia początkowe wartości.
      */
@@ -47,9 +46,9 @@ public class Server {
         clientsInLobby = new ArrayList<>();
         idRoom = 1;
         clientsId = 1;
-        rooms.put(idRoom, new Room("Pokój_1",idRoom));
+        rooms.put(idRoom, new Room("Pokój_1", idRoom));
         idRoom++;
-        roomSemaphores =new HashMap<>();
+        roomSemaphores = new HashMap<>();
     }
 
     /**
@@ -120,6 +119,9 @@ public class Server {
             }
         }
 
+        protected void putClientInRoom(int chosenRoom){
+            clientRooms.put(clientId, chosenRoom);
+        }
 
 
         /**
@@ -147,7 +149,7 @@ public class Server {
             clientsInLobby.remove(out);
             out.flush();
 
-            clientRooms.put(clientId, chosenRoom);
+            putClientInRoom(chosenRoom);
             Room currentRoom = rooms.get(chosenRoom);
 
             out.writeInt(-1);
@@ -187,7 +189,7 @@ public class Server {
          *
          * @return Obiekt klasy Room reprezentujący aktualny pokój klienta.
          */
-        private Room takeCurrentRoom(){
+        protected Room takeCurrentRoom() {
             int idCurrentRoom = clientRooms.get(clientId);
             return rooms.get(idCurrentRoom);
         }
@@ -256,19 +258,18 @@ public class Server {
         }
 
 
-
         /**
          * Metoda sprawdzająca poprawność ruchu karty przez klienta.
          *
          * @param chosenSymbol Symbol wybranej karty przez klienta.
          * @return true, jeśli ruch jest poprawny, false w przeciwnym razie.
          */
-        private boolean validateCardMove(String chosenSymbol){
+        protected boolean validateCardMove(String chosenSymbol) {
             ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
 
             String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
 
-            if(!Objects.equals(chosenSymbol, currentSymbol)){
+            if (!Objects.equals(chosenSymbol, currentSymbol)) {
                 //Sprawdzenie czy user ma w talii taki kolor
                 List<String> availableColors = new ArrayList<>();
                 for (Card card : clientDeck) {
@@ -277,7 +278,7 @@ public class Server {
                         availableColors.add(symbol);
                     }
                 }
-                if(availableColors.contains(currentSymbol)){
+                if (availableColors.contains(currentSymbol)) {
                     return false;
                 }
                 return true;
@@ -316,7 +317,7 @@ public class Server {
          * @param winningCard Karta zwycięska, na podstawie której wybierany jest zwycięzca.
          * @return Identyfikator klienta, który wygrał rundę.
          */
-        private int takeWinnerID(Card winningCard) {
+        protected int takeWinnerID(Card winningCard) {
             HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
             for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
                 if (entry.getValue().equals(winningCard)) {
@@ -325,18 +326,24 @@ public class Server {
             }
             return 0;
         }
+
         /**
          * Metoda obsługująca pierwszą rundę gry.
          *
          * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
          */
-        private void handleRound1(String currentSymbol) {
+        protected void handleRound1(String currentSymbol) {
             ArrayList<Card> winCard = getCards();
+            System.out.println("1");
             winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
+            System.out.println("2");
             sortCards(winCard);
+            System.out.println("3");
             Card winningCard = winCard.get(0);
+            System.out.println("4");
             int winningClientID = takeWinnerID(winningCard);
-            takeCurrentRoom().setPoints(winningClientID,-20);
+            System.out.println("5");
+            takeCurrentRoom().setPoints(winningClientID, -20);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
@@ -351,34 +358,35 @@ public class Server {
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfHearts = 0;
-            for(Card card: cards){
-                if(Objects.equals(card.getSymbol(), "Hearts"))amountOfHearts++;
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getSymbol(), "Hearts")) amountOfHearts++;
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
             int winningClientID = takeWinnerID(winningCard);
-            takeCurrentRoom().setPoints(winningClientID, -20*amountOfHearts);
+            takeCurrentRoom().setPoints(winningClientID, -20 * amountOfHearts);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
         /**
          * Metoda obsługująca trzecią rundę gry.
          *
          * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
          */
         private void handleRound3(String currentSymbol) {
-            ArrayList<Card> cards  = getCards();
+            ArrayList<Card> cards = getCards();
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfQueens = 0;
-            for(Card card: cards){
-                if(Objects.equals(card.getValue(), 12))amountOfQueens++;
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getValue(), 12)) amountOfQueens++;
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
             int winningClientID = takeWinnerID(winningCard);
-            takeCurrentRoom().setPoints(winningClientID, -60*amountOfQueens);
+            takeCurrentRoom().setPoints(winningClientID, -60 * amountOfQueens);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
@@ -392,14 +400,14 @@ public class Server {
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             int amountOfJacksAndKings = 0;
-            for(Card card: cards){
-                if(Objects.equals(card.getValue(), 11)||Objects.equals(card.getValue(), 13))amountOfJacksAndKings++;
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getValue(), 11) || Objects.equals(card.getValue(), 13)) amountOfJacksAndKings++;
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
             int winningClientID = takeWinnerID(winningCard);
-            takeCurrentRoom().setPoints(winningClientID, -30*amountOfJacksAndKings);
+            takeCurrentRoom().setPoints(winningClientID, -30 * amountOfJacksAndKings);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
@@ -409,18 +417,19 @@ public class Server {
          * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
          */
         private void handleRound5(String currentSymbol) {
-            ArrayList<Card> cards =  getCards();
+            ArrayList<Card> cards = getCards();
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
             boolean checkHeartsKing = false;
-            for(Card card: cards){
-                if(Objects.equals(card.getValue(), 13)&&Objects.equals(card.getSymbol(), "Hearts"))checkHeartsKing=true;
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getValue(), 13) && Objects.equals(card.getSymbol(), "Hearts"))
+                    checkHeartsKing = true;
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
             int winningClientID = takeWinnerID(winningCard);
-            if(checkHeartsKing){
+            if (checkHeartsKing) {
                 takeCurrentRoom().setPoints(winningClientID, -150);
                 takeCurrentRoom().initializeDeck();
                 takeCurrentRoom().dealCards();
@@ -431,6 +440,7 @@ public class Server {
             }
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
         /**
          * Metoda obsługująca szóstą rundę gry.
          *
@@ -440,22 +450,24 @@ public class Server {
             ArrayList<Card> cards = getCards();
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
-            for(Card card: cards){
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
             int winningClientID = takeWinnerID(winningCard);
-            if(takeCurrentRoom().getDeck().size()==28||takeCurrentRoom().getDeck().size()==4)takeCurrentRoom().setPoints(winningClientID, -75);
+            if (takeCurrentRoom().getDeck().size() == 28 || takeCurrentRoom().getDeck().size() == 4)
+                takeCurrentRoom().setPoints(winningClientID, -75);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
         /**
          * Metoda obsługująca siódmą rundę gry.
          *
          * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
          */
 
-        private void handleRound7(String currentSymbol){
+        private void handleRound7(String currentSymbol) {
             ArrayList<Card> cards = getCards();
             sortCards(cards);
             Card winningCard = takeCurrentRoom().getFirstCardOnTable();
@@ -463,23 +475,25 @@ public class Server {
             int amountOfQueens = 0;
             int amountOfJacksAndKings = 0;
             int checkHeartsKing = 0;
-            for(Card card: cards){
-                if(Objects.equals(card.getSymbol(), "Hearts"))amountOfHearts++;
-                if(Objects.equals(card.getValue(), 12))amountOfQueens++;
-                if(Objects.equals(card.getValue(), 11)||Objects.equals(card.getValue(), 13))amountOfJacksAndKings++;
-                if(Objects.equals(card.getValue(), 13)&&Objects.equals(card.getSymbol(), "Hearts"))checkHeartsKing=1;
-                if(Objects.equals(card.getSymbol(), currentSymbol) && card.getValue()>winningCard.getValue()){
-                    winningCard=card;
+            for (Card card : cards) {
+                if (Objects.equals(card.getSymbol(), "Hearts")) amountOfHearts++;
+                if (Objects.equals(card.getValue(), 12)) amountOfQueens++;
+                if (Objects.equals(card.getValue(), 11) || Objects.equals(card.getValue(), 13)) amountOfJacksAndKings++;
+                if (Objects.equals(card.getValue(), 13) && Objects.equals(card.getSymbol(), "Hearts"))
+                    checkHeartsKing = 1;
+                if (Objects.equals(card.getSymbol(), currentSymbol) && card.getValue() > winningCard.getValue()) {
+                    winningCard = card;
                 }
             }
 
             int winningClientID = takeWinnerID(winningCard);
-            takeCurrentRoom().setPoints(winningClientID,-20);
-            takeCurrentRoom().setPoints(winningClientID, -20*amountOfHearts);
-            takeCurrentRoom().setPoints(winningClientID, -60*amountOfQueens);
-            takeCurrentRoom().setPoints(winningClientID, -30*amountOfJacksAndKings);
-            takeCurrentRoom().setPoints(winningClientID, -150*checkHeartsKing);
-            if(takeCurrentRoom().getDeck().size()==28||takeCurrentRoom().getDeck().size()==4)takeCurrentRoom().setPoints(winningClientID, -75);
+            takeCurrentRoom().setPoints(winningClientID, -20);
+            takeCurrentRoom().setPoints(winningClientID, -20 * amountOfHearts);
+            takeCurrentRoom().setPoints(winningClientID, -60 * amountOfQueens);
+            takeCurrentRoom().setPoints(winningClientID, -30 * amountOfJacksAndKings);
+            takeCurrentRoom().setPoints(winningClientID, -150 * checkHeartsKing);
+            if (takeCurrentRoom().getDeck().size() == 28 || takeCurrentRoom().getDeck().size() == 4)
+                takeCurrentRoom().setPoints(winningClientID, -75);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
@@ -487,7 +501,7 @@ public class Server {
         /**
          * Metoda sumująca punkty dla danej rundy i obsługująca odpowiednie zasady.
          */
-        private void sumPoints(){
+        private void sumPoints() {
             int round = takeCurrentRoom().getRound();
             String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
             switch (round) {
@@ -521,10 +535,10 @@ public class Server {
         /**
          * Metoda usuwająca karty z głównej talii gry, które zostały użyte w danej rundzie.
          */
-        private void removeMainCards(){
+        private void removeMainCards() {
             ArrayList<Card> updatedDeck = takeCurrentRoom().getDeck();
 
-            HashMap<Integer,Card> actualPlay = takeCurrentRoom().getActualPlay();
+            HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
 
             for (Card card : actualPlay.values()) {
                 updatedDeck.removeIf(deckCard -> deckCard.equals(card));
@@ -539,8 +553,8 @@ public class Server {
          * Jeżeli talia gry jest pusta, inicjalizuje nową talie, rozdaje karty, tasuje talie, przechodzi do kolejnej rundy
          * i ustala losowo, który gracz rozpocznie tę rundę.
          */
-        private void checkEndOfRound(){
-            if(takeCurrentRoom().getDeck().isEmpty()){
+        private void checkEndOfRound() {
+            if (takeCurrentRoom().getDeck().isEmpty()) {
                 takeCurrentRoom().initializeDeck();
                 takeCurrentRoom().dealCards();
                 takeCurrentRoom().shuffleDeck();
@@ -555,8 +569,8 @@ public class Server {
          * Sprawdza, czy talia gry jest pusta i czy obecna runda to siódma (ostatnia) runda.
          * Jeżeli warunki są spełnione, oznacza zakończenie gry.
          */
-        private void checkEndOfGame(){
-            if(takeCurrentRoom().getDeck().isEmpty()&&takeCurrentRoom().getRound()==7){
+        private void checkEndOfGame() {
+            if (takeCurrentRoom().getDeck().isEmpty() && takeCurrentRoom().getRound() == 7) {
                 //end
             }
         }
@@ -570,32 +584,30 @@ public class Server {
          * Metoda zapewnia, że stan gry jest utrzymany w synchronizacji z działaniami graczy.
          */
         private void game() throws IOException, InterruptedException {
-            while(true){
+            while (true) {
                 int chosenValue = in.readInt();
                 String chosenSymbol = in.readUTF();
-                if(chosenValue == -1){
+                if (chosenValue == -1) {
                     takeCurrentRoom().addMessageToChat(chosenSymbol);
                     broadcastToSameRoomPlayers();
                     continue;
                 }
-                if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
-//                    System.out.println(takeCurrentRoom().getFirstCardOnTable().getSymbol());
-                    if(takeCurrentRoom().checkActualPlay()==0){
-                        Card card = new Card(chosenSymbol,chosenValue);
+                if (takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId) {
+                    if (takeCurrentRoom().checkActualPlay() == 0) {
+                        Card card = new Card(chosenSymbol, chosenValue);
                         card.setClientID(clientId);
-                        takeCurrentRoom().setActualCard(clientId,card);
+                        takeCurrentRoom().setActualCard(clientId, card);
                         takeCurrentRoom().setFirstCardOnTable(card);
                         takeCurrentRoom().nextTurn();
-                    }
-                    else if(takeCurrentRoom().checkActualPlay()>=1){
-                        if(!validateCardMove(chosenSymbol))continue;
-                        Card card = new Card(chosenSymbol,chosenValue);
+                    } else if (takeCurrentRoom().checkActualPlay() >= 1) {
+                        if (!validateCardMove(chosenSymbol)) continue;
+                        Card card = new Card(chosenSymbol, chosenValue);
                         card.setClientID(clientId);
-                        takeCurrentRoom().setActualCard(clientId,card);
+                        takeCurrentRoom().setActualCard(clientId, card);
                         takeCurrentRoom().nextTurn();
                     }
                     broadcastToSameRoomPlayers();
-                    if(takeCurrentRoom().checkActualPlay()>=4){
+                    if (takeCurrentRoom().checkActualPlay() >= 4) {
                         sleep(1500);
                         sumPoints();
                         removeMainCards();
@@ -621,6 +633,8 @@ public class Server {
                 out = new ObjectOutputStream(socket.getOutputStream());
                 in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
+
+
                 //loginPanel
                 out.writeInt(clientId);
                 out.flush();
@@ -650,8 +664,8 @@ public class Server {
         @Override
         public void run() {
             Scanner scanner = new Scanner(System.in);
-            int userInput=0;
-            while(true){
+            int userInput = 0;
+            while (true) {
                 System.out.println("1 - Wyswietl statystyki serwera");
                 userInput = scanner.nextInt();
                 if (userInput == 1) {
@@ -660,10 +674,10 @@ public class Server {
                         System.out.println("Pokój numer: " + room.getKey());
                         ArrayList<Integer> clientsID = room.getValue().getClientsID();
                         System.out.print("ID graczy w pokoju: ");
-                        for(Integer clientID : clientsID){
-                            System.out.print(clientID+" ");
+                        for (Integer clientID : clientsID) {
+                            System.out.print(clientID + " ");
                         }
-                        System.out.println("\nGRA W TOKU: "+ room.getValue().isGameInProgress());
+                        System.out.println("\nGRA W TOKU: " + room.getValue().isGameInProgress());
                     }
                 }
 
