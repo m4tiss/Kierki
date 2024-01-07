@@ -1,9 +1,7 @@
 package com.example.kierki;
 
-import org.controlsfx.control.tableview2.filter.filtereditor.SouthFilter;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -307,7 +305,7 @@ public class Server {
          *
          * @param cards Lista obiektów klasy Card do posortowania.
          */
-        private void sortCards(List<Card> cards) {
+        protected void sortCards(List<Card> cards) {
             Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
             cards.sort(valueComparator);
         }
@@ -581,7 +579,7 @@ public class Server {
                     continue;
                 }
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
-                    System.out.println(takeCurrentRoom().getFirstCardOnTable().getSymbol());
+//                    System.out.println(takeCurrentRoom().getFirstCardOnTable().getSymbol());
                     if(takeCurrentRoom().checkActualPlay()==0){
                         Card card = new Card(chosenSymbol,chosenValue);
                         card.setClientID(clientId);
