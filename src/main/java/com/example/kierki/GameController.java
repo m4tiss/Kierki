@@ -24,8 +24,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import static java.lang.Thread.sleep;
 
+
+/**
+ * Klasa GameController odpowiada za zarządzanie interfejsem graficznym gry w aplikacji Kierki.
+ * Kontroluje wyświetlanie kart, informacji o graczach, rundach, punktacji oraz obsługę czatu.
+ */
 public class GameController {
     @FXML
     private AnchorPane mainScene;
@@ -117,6 +121,10 @@ public class GameController {
 
     private ImageView[] mainCards;
 
+
+    /**
+     * Inicjalizuje główne karty graczy na interfejsie graficznym.
+     */
     public void initMainCards() {
         this.mainCards = new ImageView[4];
         mainCards[0] = mainCard1;
@@ -126,6 +134,12 @@ public class GameController {
         for (int i = 0; i < 4; i++) mainCards[i].setOpacity(1);
     }
 
+
+    /**
+     * Aktualizuje punkty dla każdego gracza na interfejsie graficznym.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     public void updatePoints(Room room){
 
         points1.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(0))));
@@ -133,10 +147,23 @@ public class GameController {
         points3.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(2))));
         points4.setText(String.valueOf(room.getPoints().get(room.getClientsID().get(3))));
     }
+
+    /**
+     * Ustawia klienta dla kontrolera gry.
+     *
+     * @param client Instancja klasy Client reprezentująca klienta gry.
+     */
     public void setClient(Client client) {
         this.client = client;
     }
 
+
+
+    /**
+     * Ustawia nazwy graczy na interfejsie graficznym na podstawie danych z pokoju.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     private void setNicknames(Room room) {
         nickname1.setText(room.getPlayers().get(0));
         nickname2.setText(room.getPlayers().get(1));
@@ -144,12 +171,24 @@ public class GameController {
         nickname4.setText(room.getPlayers().get(3));
     }
 
+
+    /**
+     * Aktualizuje informacje o rundzie na interfejsie graficznym.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     private void updateRound(Room room) {
             roundText.setOpacity(1);
             roundNumber.setOpacity(1);
             roundNumber.setText(String.valueOf(room.getRound()));
     }
 
+
+    /**
+     * Aktualizuje informacje o liczbie obecnych graczy na interfejsie graficznym.
+     *
+     * @param current Aktualna liczba graczy.
+     */
     public void updateAmountPlayers(int current) {
         String newText = current + "/" + 4;
         System.out.println(newText);
@@ -158,6 +197,10 @@ public class GameController {
         });
     }
 
+
+    /**
+     * Rozpoczyna grę poprzez inicjalizację głównych kart oraz usuwa powitalny tekst i informację o ilości graczy.
+     */
     public void startGame() {
         initMainCards();
         Platform.runLater(() -> {
@@ -166,12 +209,21 @@ public class GameController {
         });
     }
 
+    /**
+     * Inicjalizuje elementy czatu na interfejsie graficznym.
+     */
     private void initChat(){
         mainChat.setOpacity(1);
         inputChat.setOpacity(1);
         chatButton.setOpacity(1);
     }
 
+
+    /**
+     * Aktualizuje czat na interfejsie graficznym na podstawie informacji z pokoju.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     private void updateChat(Room room){
         ArrayList<String> chat = room.getChat();
         ObservableList<String> chatMessages = FXCollections.observableArrayList(chat);
@@ -179,6 +231,12 @@ public class GameController {
         mainChat.scrollTo(chatMessages.size() - 1);
     }
 
+
+    /**
+     * Rysuje aktualną kartę na interfejsie graficznym dla poprzedniego gracza, który wykonał ruch.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     public void drawGame(Room room,int clientID) {
 
         Platform.runLater(() -> {
@@ -194,6 +252,13 @@ public class GameController {
         });
     }
 
+
+    /**
+     * Obsługuje dodanie wiadomości do czatu po wciśnięciu przycisku.
+     *
+     * @param event Zdarzenie przycisku.
+     * @throws IOException Jeżeli wystąpi błąd wejścia-wyjścia podczas wysyłania wiadomości do serwera.
+     */
     @FXML
     void addMessage(ActionEvent event) throws IOException {
         String message = inputChat.getText();
@@ -201,6 +266,12 @@ public class GameController {
         client.sendMessage(message);
         inputChat.setText("");
     }
+
+    /**
+     * Aktualizuje strzałki na interfejsie graficznym na podstawie aktualnego gracza, który ma kolej na ruch.
+     *
+     * @param turn Numer gracza, który ma aktualnie kolej na ruch.
+     */
     private void updateArrows(int turn) {
         arrow1.setOpacity(turn == 0 ? 1 : 0);
         arrow2.setOpacity(turn == 1 ? 1 : 0);
@@ -208,6 +279,12 @@ public class GameController {
         arrow4.setOpacity(turn == 3 ? 1 : 0);
     }
 
+
+    /**
+     * Rysuje aktualną kartę na interfejsie graficznym dla poprzedniego gracza, który wykonał ruch.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     private void drawActualCard(Room room) {
         int previousTurn;
         if (room.getTurn() == 0) previousTurn = 3;
@@ -222,6 +299,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Zresetuj karty na stole.
+     */
     private void resetActualCards() {
         for (int i = 0; i < 4; i++) {
             String nameCard = "file:cards/reverseCard.png";
@@ -230,6 +310,13 @@ public class GameController {
         }
     }
 
+
+    /**
+     * Aktualizuje elementy interfejsu graficznego dla bieżącej rozgrywki.
+     *
+     * @param room     Obiekt reprezentujący aktualny stan pokoju gry.
+     * @param clientID Identyfikator klienta.
+     */
     public void game(Room room,int clientID) {
         Platform.runLater(() -> {
             System.out.println("ILOŚĆ KART W DECKU:" + room.getDeck().size());
@@ -244,12 +331,25 @@ public class GameController {
         });
     }
 
+
+    /**
+     * Ustawia karty w rewersie na interfejsie graficznym dla graczy pozostałych w pokoju.
+     */
     private void setReverseCards() {
         reverse1.setOpacity(1);
         reverse2.setOpacity(1);
         reverse3.setOpacity(1);
     }
 
+
+
+    /**
+     * Oblicza ilość kart danego klienta w danym pokoju.
+     *
+     * @param room     Obiekt reprezentujący aktualny stan pokoju gry.
+     * @param clientID Identyfikator klienta.
+     * @return Ilość kart klienta w pokoju.
+     */
     public int calculateCards(Room room,int clientID) {
         int amountClientCards=0;
         for(Card card : room.getDeck()){
@@ -257,6 +357,13 @@ public class GameController {
         }
         return amountClientCards;
     }
+
+    /**
+     * Aktualizuje karty klienta na interfejsie graficznym.
+     *
+     * @param room     Obiekt reprezentujący aktualny stan pokoju gry.
+     * @param clientID Identyfikator klienta.
+     */
     public void updateCards(Room room,int clientID) {
         cardImageViews = null;
         int size = calculateCards(room,clientID);
@@ -270,10 +377,22 @@ public class GameController {
         }
     }
 
+    /**
+     * Obsługuje kliknięcie na kartę, wysyłając ruch do serwera.
+     *
+     * @param value  Wartość karty.
+     * @param symbol Symbol karty.
+     * @throws IOException Jeżeli wystąpi błąd wejścia-wyjścia podczas wysyłania ruchu do serwera.
+     */
     private void handleCardClick(int value, String symbol) throws IOException {
         client.sendMove(value, symbol);
     }
 
+    /**
+     * Sortuje karty klienta według symbolu, a następnie wartości w odwrotnej kolejności.
+     *
+     * @param clientCards Lista kart klienta do posortowania.
+     */
     private void sortCard(ArrayList<Card> clientCards) {
         Comparator<Card> symbolThenValueComparator = Comparator.comparing(Card::getSymbol)
                 .thenComparing(Comparator.comparing(Card::getValue).reversed());
@@ -281,6 +400,12 @@ public class GameController {
         Collections.sort(clientCards, symbolThenValueComparator);
     }
 
+
+    /**
+     * Aktualizuje elementy FlowPane z kartami na interfejsie graficznym.
+     *
+     * @param room Obiekt reprezentujący aktualny stan pokoju gry.
+     */
     private void updateCardFlowPane(Room room) {
         cardArea.getChildren().clear();
         for (ImageView cardImageView : cardImageViews) {
@@ -305,6 +430,11 @@ public class GameController {
         }
     }
 
+    /**
+     * Dodaje efekt "hover" do karty na interfejsie graficznym.
+     *
+     * @param imageView Obiekt ImageView reprezentujący kartę.
+     */
     private void addHoverEffect(ImageView imageView) {
         final double scaleFactorOnHover = 1.2;
         final Duration duration = Duration.millis(200);

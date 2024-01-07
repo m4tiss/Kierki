@@ -1,32 +1,57 @@
 package com.example.kierki;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 
 import java.io.IOException;
 
+/**
+ * Klasa RoomsController zarządza logiką funkcjonalności związaną z pokojami w aplikacji Kierki.
+ * Ta klasa wykorzystuje JavaFX do komponentów interfejsu graficznego
+ */
 public class RoomsController {
+
+    /**
+     * Instancja Client odpowiedzialna za obsługę komunikacji z serwerem.
+     */
     private Client client;
 
+    /**
+     * FlowPane reprezentujący kontener dla przycisków pokojów.
+     */
     @FXML
     private FlowPane roomsBox;
 
+    /**
+     * Obsługuje zdarzenie kliknięcia przycisku dodawania pokoju przez użytkownika.
+     *
+     * @param event Zdarzenie ActionEvent wywołane kliknięciem przycisku dodawania pokoju.
+     * @throws IOException Jeśli wystąpi błąd wejścia-wyjścia podczas procesu dodawania pokoju.
+     */
     @FXML
     void addRoomButton(ActionEvent event) throws IOException {
-    client.addRoom();
+        client.addRoom();
     }
 
-        public void addRoom(Room room) {
+    /**
+     * Dodaje przycisk reprezentujący pokój do interfejsu graficznego.
+     * Ustawia odpowiednie informacje o pokoju, takie jak nazwa pokoju, liczba graczy, czy jest pełny.
+     *
+     * @param room Obiekt reprezentujący pokój do dodania.
+     */
+    public void addRoom(Room room) {
         Platform.runLater(() -> {
             Button roomButton = new Button();
             roomButton.setText("Pokój: " + room.getRoomName() + "           " + "Graczy: " + room.getAmountOfPlayers() + "/4");
             roomButton.setMinHeight(80);
             roomButton.setMinWidth(60);
 
-            if(room.getAmountOfPlayers()>=4)roomButton.setDisable(true);
+            if (room.getAmountOfPlayers() >= 4) {
+                roomButton.setDisable(true);
+            }
 
             roomButton.setOnAction(event -> {
                 try {
@@ -40,11 +65,20 @@ public class RoomsController {
         });
     }
 
-    public void clearRooms(){
+    /**
+     * Czyści listę pokojów z interfejsu graficznego.
+     */
+    public void clearRooms() {
         Platform.runLater(() -> {
-        roomsBox.getChildren().clear();
+            roomsBox.getChildren().clear();
         });
     }
+
+    /**
+     * Ustawia instancję Client dla RoomsController.
+     *
+     * @param client Instancja Client do ustawienia.
+     */
     public void setClient(Client client) {
         this.client = client;
     }
