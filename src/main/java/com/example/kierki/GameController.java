@@ -2,9 +2,15 @@ package com.example.kierki;
 
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -98,6 +104,14 @@ public class GameController {
     @FXML
     private Label roundNumber;
 
+    @FXML
+    private ListView<String> mainChat;
+    @FXML
+    private Button chatButton;
+
+    @FXML
+    private TextField inputChat;
+
     private Client client;
     private ImageView[] cardImageViews;
 
@@ -152,10 +166,25 @@ public class GameController {
         });
     }
 
+    private void initChat(){
+        mainChat.setOpacity(1);
+        inputChat.setOpacity(1);
+        chatButton.setOpacity(1);
+    }
+
+    private void updateChat(Room room){
+        ArrayList<String> chat = room.getChat();
+        ObservableList<String> chatMessages = FXCollections.observableArrayList(chat);
+        mainChat.setItems(chatMessages);
+        mainChat.scrollTo(chatMessages.size() - 1);
+    }
+
     public void drawGame(Room room,int clientID) {
 
         Platform.runLater(() -> {
             setReverseCards();
+            initChat();
+            updateChat(room);
             updateArrows(room.getTurn());
             updateRound(room);
             setNicknames(room);
@@ -165,6 +194,13 @@ public class GameController {
         });
     }
 
+    @FXML
+    void addMessage(ActionEvent event) throws IOException {
+        String message = inputChat.getText();
+        if(message.equals(""))return;
+        client.sendMessage(message);
+        inputChat.setText("");
+    }
     private void updateArrows(int turn) {
         arrow1.setOpacity(turn == 0 ? 1 : 0);
         arrow2.setOpacity(turn == 1 ? 1 : 0);
@@ -204,6 +240,7 @@ public class GameController {
             updateCardFlowPane(room);
             updatePoints(room);
             updateRound(room);
+            updateChat(room);
         });
     }
 

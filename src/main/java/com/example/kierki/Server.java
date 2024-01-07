@@ -413,6 +413,11 @@ public class Server {
             while(true){
                 int chosenValue = in.readInt();
                 String chosenSymbol = in.readUTF();
+                if(chosenValue == -1){
+                    takeCurrentRoom().addMessageToChat(chosenSymbol);
+                    broadcastToSameRoomPlayers();
+                    continue;
+                }
                 if( takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId){
                     System.out.println(takeCurrentRoom().getFirstCardOnTable().getSymbol());
                     if(takeCurrentRoom().checkActualPlay()==0){

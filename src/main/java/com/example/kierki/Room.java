@@ -30,6 +30,12 @@ public class Room implements Serializable {
 
     private HashMap<Integer, Integer> points;
 
+    public ArrayList<String> getChat() {
+        return chat;
+    }
+
+    private ArrayList<String> chat;
+
     private int turn;
 
     private HashMap<Integer, Card> actualPlay;
@@ -38,13 +44,15 @@ public class Room implements Serializable {
         this.roomName = roomName;
         this.players = new ArrayList<>();
         this.clientsID = new ArrayList<>();
-        this.gameInProgress = false;
-        this.amountOfPlayers = 0;
-        this.idRoom = idRoom;
+        this.chat= new ArrayList<>();
+        this.chat.add("Admin: Witam was w rozgrywce, bawcie się dobrze");
+        this.actualPlay = new HashMap<>();
         this.points = new HashMap<>();
+        this.gameInProgress = false;
+        this.idRoom = idRoom;
+        this.amountOfPlayers = 0;
         this.round = 1;
         this.firstCardOnTable = new Card("XXX", 99);
-        this.actualPlay = new HashMap<>();
         initializeDeck();
     }
 
@@ -62,6 +70,13 @@ public class Room implements Serializable {
 
     public boolean isGameInProgress() {
         return gameInProgress;
+    }
+
+    public void addMessageToChat(String message){
+        chat.add(message);
+    }
+    public void clearChat(){
+        chat.clear();
     }
 
     public HashMap<Integer, Integer> getPoints() {

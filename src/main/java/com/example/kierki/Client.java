@@ -56,6 +56,14 @@ public class Client {
         out.flush();
     }
 
+    public void sendMessage(String message) throws IOException {
+        out.writeInt(-1);
+        out.flush();
+        String finalMessage = nickname+": " + message;
+        out.writeUTF(finalMessage);
+        out.flush();
+    }
+
     public void sendChosenRoom(Integer idRoom) throws IOException {
         out.writeObject(idRoom);
         out.flush();
