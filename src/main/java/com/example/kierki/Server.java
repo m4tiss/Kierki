@@ -12,6 +12,13 @@ import java.util.concurrent.Semaphore;
 
 import static java.lang.Thread.sleep;
 
+/**
+ * Klasa implementująca serwer gry kierki.
+ * Serwer obsługuje komunikację między klientami a serwerem, zarządza pokojami gry oraz przebiegiem samej gry.
+ *
+ * @author Mateusz Gwóźdź
+ * @version 1.0
+ */
 public class Server {
     private static final int PORT = 8888;
 
@@ -32,6 +39,9 @@ public class Server {
 
 
 
+    /**
+     * Inicjalizuje wszystkie niezbędne obiekty, takie jak mapy, listy, semafory, oraz ustawia początkowe wartości.
+     */
     public static void initObjects() {
         outputStreams = new HashMap<>();
         rooms = new HashMap<>();
@@ -44,6 +54,11 @@ public class Server {
         roomSemaphores =new HashMap<>();
     }
 
+    /**
+     * Metoda główna programu. Tworzy serwer, nasłuchuje na określonym porcie, akceptuje połączenia i uruchamia wątki obsługujące klientów.
+     *
+     * @param args Argumenty przekazywane przy uruchamianiu programu.
+     */
     public static void main(String[] args) {
 
         initObjects();
@@ -67,6 +82,9 @@ public class Server {
         }
     }
 
+    /**
+     * Klasa wewnętrzna reprezentująca obsługę klienta przez serwer.
+     */
     static class ClientHandler implements Runnable {
         private final Socket socket;
         private final int clientId;
@@ -74,12 +92,24 @@ public class Server {
         ObjectInputStream in;
         ObjectOutputStream out;
 
+        /**
+         * Konstruktor klasy wewnętrznej ClientHandler.
+         *
+         * @param socket   Gniazdo Socket, przez które odbywa się komunikacja z klientem.
+         * @param clientId Unikalny identyfikator klienta przypisany podczas jego dołączania do serwera.
+         */
         public ClientHandler(Socket socket, int clientId) {
             this.socket = socket;
             this.clientId = clientId;
         }
 
 
+        /**
+         * Metoda wysyłająca informacje o dostępnych pokojach do klienta.
+         * Wysyła liczbę dostępnych pokoi, a następnie dla każdego pokoju wysyła jego identyfikator oraz obiekt klasy Room.
+         *
+         * @throws IOException Występuje w przypadku problemów z operacjami wejścia/wyjścia.
+         */
         private void sendRooms() throws IOException {
             Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
             out.writeInt(entrySet.size());
@@ -94,26 +124,40 @@ public class Server {
 
 
 
+        /**
+         * Metoda oczekująca na wybór pokoju przez klienta i rozgłaszająca informacje o dostępności pokoi.
+         * Po otrzymaniu wybranego pokoju, dodaje klienta do tego pokoju, inicjalizuje grę w przypadku pełnej liczby graczy,
+         * i informuje innych klientów o liczbie graczy w danym pokoju.
+         *
+         * @throws IOException            Występuje w przypadku problemów z operacjami wejścia/wyjścia.
+         * @throws ClassNotFoundException Występuje, gdy nie można zidentyfikować przesyłanego obiektu.
+         */
         private void waitOnRoomAndBroadcast() throws IOException, ClassNotFoundException {
             Integer chosenRoom = (Integer) in.readObject();
-            while(true){
-                if(chosenRoom!=-1)break;
-                rooms.put(idRoom, new Room("Pokój_"+idRoom,idRoom));
+
+            while (true) {
+                if (chosenRoom != -1) break;
+
+                rooms.put(idRoom, new Room("Pokój_" + idRoom, idRoom));
                 idRoom++;
+
                 broadcastToPlayersInLobby();
+
                 chosenRoom = (Integer) in.readObject();
             }
+
             clientsInLobby.remove(out);
             out.flush();
-            clientRooms.put(clientId,chosenRoom);
+
+            clientRooms.put(clientId, chosenRoom);
             Room currentRoom = rooms.get(chosenRoom);
+
             out.writeInt(-1);
-            currentRoom.addPlayer(nickname,clientId);
+            currentRoom.addPlayer(nickname, clientId);
             broadcastToPlayersInLobby();
 
             roomSemaphores.putIfAbsent(chosenRoom, new Semaphore(0));
-
-            if(currentRoom.getAmountOfPlayers()==4){
+            if (currentRoom.getAmountOfPlayers() == 4) {
                 currentRoom.setGameInProgress(Boolean.TRUE);
                 currentRoom.shuffleDeck();
                 currentRoom.dealCards();
@@ -131,29 +175,53 @@ public class Server {
                     targetOutputStream.flush();
                 }
             }
-            if(currentRoom.getAmountOfPlayers()==4){
+
+            if (currentRoom.getAmountOfPlayers() == 4) {
                 for (int i = 0; i < 4; i++) {
                     roomSemaphores.get(chosenRoom).release();
                 }
             }
         }
 
+
+        /**
+         * Metoda pomocnicza zwracająca aktualny pokój, do którego przypisany jest klient.
+         *
+         * @return Obiekt klasy Room reprezentujący aktualny pokój klienta.
+         */
         private Room takeCurrentRoom(){
             int idCurrentRoom = clientRooms.get(clientId);
             return rooms.get(idCurrentRoom);
         }
+
+
+        /**
+         * Metoda inicjująca początek gry dla klienta.
+         * Oczekuje na akwizycję semafora dla aktualnego pokoju, inicjalizuje punkty graczy oraz wysyła informacje o stanie gry do klienta.
+         *
+         * @throws IOException Występuje w przypadku problemów z operacjami wejścia/wyjścia.
+         */
         private void startOfGame() throws IOException {
             int idCurrentRoom = clientRooms.get(clientId);
+
             try {
                 roomSemaphores.get(idCurrentRoom).acquire();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             takeCurrentRoom().initializePoints();
+
             out.reset();
             out.writeObject(rooms.get(idCurrentRoom));
             out.flush();
         }
+
+        /**
+         * Metoda rozgłaszająca informacje o stanie gry w tym samym pokoju do wszystkich klientów znajdujących się w tym pokoju.
+         *
+         * @throws IOException Występuje w przypadku problemów z operacjami wejścia/wyjścia.
+         */
         private void broadcastToSameRoomPlayers() throws IOException {
             int sendingClientRoom = clientRooms.get(clientId);
 
@@ -169,6 +237,11 @@ public class Server {
             }
         }
 
+        /**
+         * Metoda rozgłaszająca informacje o dostępnych pokojach do wszystkich klientów oczekujących w lobby.
+         *
+         * @throws IOException Występuje w przypadku problemów z operacjami wejścia/wyjścia.
+         */
         private void broadcastToPlayersInLobby() throws IOException {
             for (ObjectOutputStream targetOutputStream : clientsInLobby) {
                 Set<Map.Entry<Integer, Room>> entrySet = rooms.entrySet();
@@ -186,6 +259,12 @@ public class Server {
 
 
 
+        /**
+         * Metoda sprawdzająca poprawność ruchu karty przez klienta.
+         *
+         * @param chosenSymbol Symbol wybranej karty przez klienta.
+         * @return true, jeśli ruch jest poprawny, false w przeciwnym razie.
+         */
         private boolean validateCardMove(String chosenSymbol){
             ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
 
@@ -207,6 +286,12 @@ public class Server {
             }
             return true;
         }
+
+        /**
+         * Metoda pobierająca karty aktualnie rozgrywanej tury dla wszystkich klientów w pokoju.
+         *
+         * @return Lista obiektów klasy Card reprezentujących karty aktualnie rozgrywanej tury.
+         */
         private ArrayList<Card> getCards() {
             ArrayList<Card> cards = new ArrayList<>();
             List<Integer> clientsID = takeCurrentRoom().getClientsID();
@@ -216,10 +301,23 @@ public class Server {
             }
             return cards;
         }
+
+        /**
+         * Metoda sortująca karty zgodnie z wartością, malejąco.
+         *
+         * @param cards Lista obiektów klasy Card do posortowania.
+         */
         private void sortCards(List<Card> cards) {
             Comparator<Card> valueComparator = Comparator.comparing(Card::getValue).reversed();
             cards.sort(valueComparator);
         }
+
+        /**
+         * Metoda pobierająca identyfikator klienta, który wygrał aktualną rundę na podstawie karty zwycięskiej.
+         *
+         * @param winningCard Karta zwycięska, na podstawie której wybierany jest zwycięzca.
+         * @return Identyfikator klienta, który wygrał rundę.
+         */
         private int takeWinnerID(Card winningCard) {
             HashMap<Integer, Card> actualPlay = takeCurrentRoom().getActualPlay();
             for (Map.Entry<Integer, Card> entry : actualPlay.entrySet()) {
@@ -229,6 +327,11 @@ public class Server {
             }
             return 0;
         }
+        /**
+         * Metoda obsługująca pierwszą rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound1(String currentSymbol) {
             ArrayList<Card> winCard = getCards();
             winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
@@ -238,6 +341,12 @@ public class Server {
             takeCurrentRoom().setPoints(winningClientID,-20);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
+        /**
+         * Metoda obsługująca drugą rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound2(String currentSymbol) {
 
             ArrayList<Card> cards = getCards();
@@ -254,6 +363,11 @@ public class Server {
             takeCurrentRoom().setPoints(winningClientID, -20*amountOfHearts);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+        /**
+         * Metoda obsługująca trzecią rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound3(String currentSymbol) {
             ArrayList<Card> cards  = getCards();
             sortCards(cards);
@@ -269,6 +383,12 @@ public class Server {
             takeCurrentRoom().setPoints(winningClientID, -60*amountOfQueens);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
+        /**
+         * Metoda obsługująca czwartą rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound4(String currentSymbol) {
             ArrayList<Card> cards = getCards();
             sortCards(cards);
@@ -284,6 +404,12 @@ public class Server {
             takeCurrentRoom().setPoints(winningClientID, -30*amountOfJacksAndKings);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+
+        /**
+         * Metoda obsługująca pierwszą piątą gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound5(String currentSymbol) {
             ArrayList<Card> cards =  getCards();
             sortCards(cards);
@@ -307,6 +433,11 @@ public class Server {
             }
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+        /**
+         * Metoda obsługująca szóstą rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
         private void handleRound6(String currentSymbol) {
             ArrayList<Card> cards = getCards();
             sortCards(cards);
@@ -320,6 +451,11 @@ public class Server {
             if(takeCurrentRoom().getDeck().size()==28||takeCurrentRoom().getDeck().size()==4)takeCurrentRoom().setPoints(winningClientID, -75);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
+        /**
+         * Metoda obsługująca siódmą rundę gry.
+         *
+         * @param currentSymbol Aktualny symbol karty, według którego odbywa się rozgrywka.
+         */
 
         private void handleRound7(String currentSymbol){
             ArrayList<Card> cards = getCards();
@@ -349,6 +485,10 @@ public class Server {
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }
 
+
+        /**
+         * Metoda sumująca punkty dla danej rundy i obsługująca odpowiednie zasady.
+         */
         private void sumPoints(){
             int round = takeCurrentRoom().getRound();
             String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
@@ -379,6 +519,10 @@ public class Server {
             }
         }
 
+
+        /**
+         * Metoda usuwająca karty z głównej talii gry, które zostały użyte w danej rundzie.
+         */
         private void removeMainCards(){
             ArrayList<Card> updatedDeck = takeCurrentRoom().getDeck();
 
@@ -389,26 +533,44 @@ public class Server {
             }
 
             takeCurrentRoom().setDeck(updatedDeck);
-//            takeCurrentRoom().displayDeck();
             takeCurrentRoom().resetActualCards();
         }
+
+        /**
+         * Metoda sprawdzająca, czy runda gry dobiegła końca.
+         * Jeżeli talia gry jest pusta, inicjalizuje nową talie, rozdaje karty, tasuje talie, przechodzi do kolejnej rundy
+         * i ustala losowo, który gracz rozpocznie tę rundę.
+         */
         private void checkEndOfRound(){
             if(takeCurrentRoom().getDeck().isEmpty()){
                 takeCurrentRoom().initializeDeck();
                 takeCurrentRoom().dealCards();
                 takeCurrentRoom().shuffleDeck();
-//                takeCurrentRoom().displayDeck();
                 takeCurrentRoom().nextRound();
                 takeCurrentRoom().randomTurn();
             }
         }
 
+
+        /**
+         * Metoda sprawdzająca, czy gra dobiegła końca.
+         * Sprawdza, czy talia gry jest pusta i czy obecna runda to siódma (ostatnia) runda.
+         * Jeżeli warunki są spełnione, oznacza zakończenie gry.
+         */
         private void checkEndOfGame(){
             if(takeCurrentRoom().getDeck().isEmpty()&&takeCurrentRoom().getRound()==7){
                 //end
             }
         }
 
+
+        /**
+         * Reprezentuje główną logikę gry, w której gracze wykonują swoje tury, rzucają karty,
+         * i zarządzają przebiegiem gry. Metoda ta działa w nieskończonej pętli, symulując ciągły charakter gry.
+         * Odczytuje wejście od gracza, przetwarza ich akcje i aktualizuje stan gry. Gra obejmuje funkcje takie jak
+         * komunikaty czatu, walidacja kart, obliczenia punktów oraz obsługa końca rund i gry.
+         * Metoda zapewnia, że stan gry jest utrzymany w synchronizacji z działaniami graczy.
+         */
         private void game() throws IOException, InterruptedException {
             while(true){
                 int chosenValue = in.readInt();
@@ -448,6 +610,13 @@ public class Server {
         }
 
 
+        /**
+         * Metoda obsługująca połączenie z klientem.
+         * Inicjalizuje strumienie wejścia/wyjścia, dodaje klienta do ogólnej mapy strumieni,
+         * przeprowadza proces logowania, dodaje klienta do listy oczekujących w lobby,
+         * wysyła informacje o dostępnych pokojach, czeka na wybór pokoju, inicjuje start gry
+         * i rozpoczyna główną pętlę gry obsługującą tury i interakcje gracza.
+         */
         @Override
         public void run() {
             try {
@@ -466,14 +635,20 @@ public class Server {
                 startOfGame();
                 game();
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
 
     }
 
+    /**
+     * Klasa wewnętrzna reprezentująca wątek informacyjny serwera.
+     */
     static class ServerInfo implements Runnable {
 
+        /**
+         * Uruchamia wątek informacyjny, który pozwala administratorowi serwera na wyświetlanie statystyk i informacji o pokojach.
+         */
         @Override
         public void run() {
             Scanner scanner = new Scanner(System.in);
