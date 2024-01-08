@@ -141,6 +141,10 @@ public class Client {
     }
 
 
+    protected void setStreams(ObjectOutputStream outer){
+            out=outer;
+    }
+
     /**
      * Inicjalizuje połączenie z serwerem i uruchamia wątek odbierający komunikaty.
      */

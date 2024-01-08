@@ -432,8 +432,8 @@ public class Server {
             if (checkHeartsKing) {
                 takeCurrentRoom().setPoints(winningClientID, -150);
                 takeCurrentRoom().initializeDeck();
-                takeCurrentRoom().dealCards();
                 takeCurrentRoom().shuffleDeck();
+                takeCurrentRoom().dealCards();
                 takeCurrentRoom().nextRound();
                 takeCurrentRoom().randomTurn();
                 return;
@@ -556,8 +556,8 @@ public class Server {
         private void checkEndOfRound() {
             if (takeCurrentRoom().getDeck().isEmpty()) {
                 takeCurrentRoom().initializeDeck();
-                takeCurrentRoom().dealCards();
                 takeCurrentRoom().shuffleDeck();
+                takeCurrentRoom().dealCards();
                 takeCurrentRoom().nextRound();
                 takeCurrentRoom().randomTurn();
             }
