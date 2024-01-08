@@ -1,5 +1,6 @@
 package com.example.kierki;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -92,6 +93,13 @@ public class Client {
         out.flush();
         out.writeUTF(symbol);
         out.flush();
+    }
+
+
+    public void closeGame() throws IOException {
+        out.close();
+        clientSocket.close();
+        Platform.exit();
     }
 
     /**

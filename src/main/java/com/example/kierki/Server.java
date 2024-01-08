@@ -588,12 +588,22 @@ public class Server {
         /**
          * Metoda sprawdzająca, czy gra dobiegła końca.
          * Sprawdza, czy talia gry jest pusta i czy obecna runda to siódma (ostatnia) runda.
-         * Jeżeli warunki są spełnione, oznacza zakończenie gry.
+         * Jeżeli warunki są spełnione, oznacza to zakończenie gry.
+         *
+         * @return true, jeżeli gra dobiegła końca, w przeciwnym razie false.
+         * @throws IOException w przypadku problemów z operacjami wejścia/wyjścia.
          */
-        private void checkEndOfGame() {
+        private boolean checkEndOfGame() throws IOException {
             if (takeCurrentRoom().getDeck().isEmpty() && takeCurrentRoom().getRound() == 7) {
-                //end
+                broadcastToSameRoomPlayers();
+                in.close();
+                out.close();
+                takeCurrentRoom().setGameInProgress(false);
+                int roomID = takeCurrentRoom().getIdRoom();
+                rooms.remove(roomID);
+                return true;
             }
+            return false;
         }
 
 
@@ -633,14 +643,25 @@ public class Server {
                         sleep(1500);
                         sumPoints();
                         removeMainCards();
-                        checkEndOfGame();
-                        checkEndOfRound();
-                        broadcastToSameRoomPlayers();
+                        if(!checkEndOfGame()){
+                            checkEndOfRound();
+                            broadcastToSameRoomPlayers();
+                        }
+                        else return;
                     }
                 }
             }
         }
 
+        private void closeStreams() {
+            try {
+                if (in != null) in.close();
+                if (out != null) out.close();
+                if (socket != null && !socket.isClosed()) socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         /**
          * Metoda obsługująca połączenie z klientem.
@@ -656,23 +677,25 @@ public class Server {
                 in = new ObjectInputStream(socket.getInputStream());
                 outputStreams.put(clientId, out);
 
-
-                //loginPanel
+                // loginPanel
                 out.writeInt(clientId);
                 out.flush();
                 nickname = in.readUTF();
-
 
                 clientsInLobby.add(out);
                 sendRooms();
                 waitOnRoomAndBroadcast();
                 startOfGame();
                 game();
+            } catch (EOFException e) {
+
             } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 e.printStackTrace();
+            } finally {
+                closeStreams();
+                outputStreams.remove(clientId);
             }
         }
-
     }
 
     /**
@@ -693,13 +716,15 @@ public class Server {
                 if (userInput == 1) {
                     Set<Map.Entry<Integer, Room>> roomsSet = rooms.entrySet();
                     for (Map.Entry<Integer, Room> room : roomsSet) {
-                        System.out.println("Pokój numer: " + room.getKey());
-                        ArrayList<Integer> clientsID = room.getValue().getClientsID();
-                        System.out.print("ID graczy w pokoju: ");
-                        for (Integer clientID : clientsID) {
-                            System.out.print(clientID + " ");
+                        if(room!=null){
+                            System.out.println("Pokój numer: " + room.getKey());
+                            ArrayList<Integer> clientsID = room.getValue().getClientsID();
+                            System.out.print("ID graczy w pokoju: ");
+                            for (Integer clientID : clientsID) {
+                                System.out.print(clientID + " ");
+                            }
+                            System.out.println("\nGRA W TOKU: " + room.getValue().isGameInProgress());
                         }
-                        System.out.println("\nGRA W TOKU: " + room.getValue().isGameInProgress());
                     }
                 }
 

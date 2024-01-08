@@ -88,7 +88,6 @@ public class ReceiverClient implements Runnable {
             System.out.println(numberOfPlayers);
             gameController.updateAmountPlayers(numberOfPlayers);
         }
-        ;
         gameController.startGame();
     }
 
@@ -107,6 +106,15 @@ public class ReceiverClient implements Runnable {
     }
 
 
+    private boolean checkEndOfGame(Room room) throws IOException, InterruptedException {
+        if(room.getDeck().isEmpty() && room.getRound() == 7){
+            gameController.closeGame(room);
+            in.close();
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Metoda odbiera od serwera informacje dotyczące aktualnego stanu gry,
      * a następnie aktualizuje interfejs graficzny gry.
@@ -114,9 +122,11 @@ public class ReceiverClient implements Runnable {
      * @throws IOException            Jeżeli wystąpi błąd wejścia-wyjścia podczas odczytu danych z InputStream.
      * @throws ClassNotFoundException Jeżeli nie uda się zidentyfikować klasy podczas deserializacji.
      */
-    private void game() throws IOException, ClassNotFoundException {
+    private int game() throws IOException, ClassNotFoundException, InterruptedException {
         Room room = (Room) in.readObject();
-        gameController.game(room, clientId);
+        if(!checkEndOfGame(room))gameController.game(room, clientId);
+        else return -1;
+        return 0;
     }
 
 
@@ -142,10 +152,11 @@ public class ReceiverClient implements Runnable {
         }
         while (true) {
             try {
-                game();
-            } catch (IOException | ClassNotFoundException e) {
+                if(game()==-1)break;
+            } catch (IOException | ClassNotFoundException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        executor.shutdown();
     }
 }

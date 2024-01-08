@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static java.lang.Thread.sleep;
 
 
 /**
@@ -197,6 +198,17 @@ public class GameController {
         });
     }
 
+    public void closeGame(Room room) throws InterruptedException, IOException {
+        Platform.runLater(() -> {
+            clearArrows();
+            resetActualCards();
+            updateCardFlowPane(null);
+            updatePoints(room);
+        });
+        sleep(3000);
+        client.closeGame();
+    }
+
 
     /**
      * Rozpoczyna grę poprzez inicjalizację głównych kart oraz usuwa powitalny tekst i informację o ilości graczy.
@@ -265,6 +277,16 @@ public class GameController {
         if(message.equals(""))return;
         client.sendMessage(message);
         inputChat.setText("");
+    }
+
+    /**
+     * Metoda czyści strzałki na interfejsie graficznym.
+     */
+    private void clearArrows() {
+        arrow1.setOpacity(0);
+        arrow2.setOpacity(0);
+        arrow3.setOpacity(0);
+        arrow4.setOpacity(0);
     }
 
     /**
@@ -408,6 +430,7 @@ public class GameController {
      */
     private void updateCardFlowPane(Room room) {
         cardArea.getChildren().clear();
+        if(room == null)return;
         for (ImageView cardImageView : cardImageViews) {
             cardArea.getChildren().add(cardImageView);
         }
