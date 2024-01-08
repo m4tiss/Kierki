@@ -11,17 +11,17 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <Label prefHeight="53.0" prefWidth="257.0" text="Wpisz swój nick" textFill="#2211e1">
+   <Label alignment="CENTER" prefHeight="53.0" prefWidth="257.0" text="KIERKI" textFill="RED">
       <font>
-         <Font size="36.0" />
+         <Font size="48.0" />
       </font>
    </Label>
-   <TextField id="nickname" fx:id="nicknameInput" alignment="CENTER" prefHeight="25.0" prefWidth="72.0" promptText="Grajek" style="-fx-background-color: purple; -fx-prompt-text-fill: white; -fx-text-fill: white;">
+   <TextField id="nickname" fx:id="nicknameInput" alignment="CENTER" prefHeight="25.0" prefWidth="72.0" promptText="Wpisz swój nick" style="-fx-background-color: white; -fx-prompt-text-fill: black; -fx-text-fill: black; -fx-border-color: red; -fx-border-radius: 30px;">
       <font>
          <Font size="36.0" />
       </font>
    </TextField>
-   <Button id="confirmButton" mnemonicParsing="false" onAction="#onConfirmButtonClick" prefHeight="81.0" prefWidth="168.0" style="-fx-background-color: green; -fx-background-radius: 100px; -fx-cursor: hand;" text="Graj" textFill="#d3cccc">
+   <Button id="confirmButton" mnemonicParsing="false" onAction="#onConfirmButtonClick" prefHeight="81.0" prefWidth="168.0" style="-fx-background-color: red; -fx-background-radius: 100px; -fx-cursor: hand;" text="Graj" textFill="#d3cccc">
       <font>
          <Font size="36.0" />
       </font>

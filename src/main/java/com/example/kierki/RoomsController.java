@@ -5,8 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 import java.io.IOException;
+
+import java.awt.Color;
 
 /**
  * Klasa RoomsController zarządza logiką funkcjonalności związaną z pokojami w aplikacji Kierki.
@@ -45,11 +49,22 @@ public class RoomsController {
     public void addRoom(Room room) {
         Platform.runLater(() -> {
             Button roomButton = new Button();
-            roomButton.setText("Pokój: " + room.getRoomName() + "           " + "Graczy: " + room.getAmountOfPlayers() + "/4");
-            roomButton.setMinHeight(80);
-            roomButton.setMinWidth(60);
+            roomButton.setText("Pokój#" + room.getIdRoom() + "           " + "Graczy: " + room.getAmountOfPlayers() + "/4");
+            roomButton.setStyle(
+                    "-fx-background-color: green; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-border-radius: 20px;" +
+                            "-fx-font-size: 14px;" +
+                            "-fx-cursor: hand;"
+            );
+            roomButton.setPrefHeight(80);
+            roomButton.setPrefWidth(300);
 
             if (room.getAmountOfPlayers() >= 4) {
+                roomButton.setStyle("-fx-background-color: red;" +
+                        "-fx-text-fill: white; " +
+                        "-fx-border-radius: 20px;" +
+                        "-fx-font-size: 14px;");
                 roomButton.setDisable(true);
             }
 

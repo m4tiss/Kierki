@@ -9,6 +9,7 @@ module com.example.kierki {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
 
     opens com.example.kierki to javafx.fxml;
     exports com.example.kierki;
