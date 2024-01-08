@@ -30,6 +30,51 @@ class TestsJUnit {
     }
 
     @Test
+    void validateCardMove_WhenFirstCardInSecondRoundIsHeart_ShouldReturnFalse() {
+        Server.initObjects();
+
+        Server.ClientHandler clientHandler = new Server.ClientHandler(null, 1);
+        clientHandler.putClientInRoom(1);
+        clientHandler.takeCurrentRoom().nextRound();
+        Card firstCard = new Card("Diamonds", 7);
+        firstCard.setClientID(1);
+        Card secondCard = new Card("Hearts", 10);
+        secondCard.setClientID(1);
+        clientHandler.takeCurrentRoom().setDeck(new ArrayList<>(List.of(firstCard, secondCard)));
+        boolean result = clientHandler.validateCardMove("Hearts");
+        assertFalse(result);
+    }
+
+    @Test
+    void validateCardMove_WhenFirstCardInSecondRoundIsNotHeart_ShouldReturnTrue() {
+        Server.initObjects();
+        Server.ClientHandler clientHandler = new Server.ClientHandler(null, 1);
+        clientHandler.putClientInRoom(1);
+        clientHandler.takeCurrentRoom().nextRound();
+        Card firstCard = new Card("Diamonds", 7);
+        firstCard.setClientID(1);
+        Card secondCard = new Card("Hearts", 10);
+        secondCard.setClientID(1);
+        clientHandler.takeCurrentRoom().setDeck(new ArrayList<>(List.of(firstCard, secondCard)));
+        boolean result = clientHandler.validateCardMove("Diamonds");
+        assertTrue(result);
+    }
+
+    @Test
+    void validateCardMove_WhenFirstCardInSecondRoundIsHeartButThisIsTheLastSymbolInDeck_ShouldReturnTrue() {
+        Server.initObjects();
+        Server.ClientHandler clientHandler = new Server.ClientHandler(null, 1);
+        clientHandler.putClientInRoom(1);
+        clientHandler.takeCurrentRoom().nextRound();
+        Card firstCard = new Card("Hearts", 7);
+        firstCard.setClientID(1);
+        Card secondCard = new Card("Hearts", 10);
+        secondCard.setClientID(1);
+        clientHandler.takeCurrentRoom().setDeck(new ArrayList<>(List.of(firstCard, secondCard)));
+        boolean result = clientHandler.validateCardMove("Hearts");
+        assertTrue(result);
+    }
+    @Test
     void validateCardMove_WhenSymbolsAreEqual_ShouldReturnTrue() {
         Server.initObjects();
 
@@ -224,5 +269,20 @@ class TestsJUnit {
         assertTrue(result.isEmpty());
     }
 
-    //"Hearts", "Diamonds", "Clubs", "Spades"
+    @Test
+    public void testEquals_ShouldReturnTrue() {
+        Card card1 = new Card( "Hearts", 10);
+        Card card2 = new Card( "Hearts", 10);
+
+        assertEquals(card1, card2);
+
+    }
+
+    @Test
+    public void testEquals_ShouldReturnFalse() {
+        Card card1 = new Card( "Hearts", 10);
+        Card card3 = new Card( "Diamonds", 10);
+        assertNotEquals(card1, card3);
+    }
+
 }

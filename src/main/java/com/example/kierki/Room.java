@@ -55,7 +55,7 @@ public class Room implements Serializable {
         this.gameInProgress = false;
         this.idRoom = idRoom;
         this.amountOfPlayers = 0;
-        this.round = 2;
+        this.round = 1;
         this.firstCardOnTable = new Card("XXX", 99);
         initializeDeck();
     }
@@ -314,7 +314,6 @@ public class Room implements Serializable {
     public void randomTurn() {
         Random random = new Random();
         turn = random.nextInt(4);
-        System.out.println("Randomly generated turn: " + turn);
     }
 
     /**
@@ -323,7 +322,6 @@ public class Room implements Serializable {
      */
     public void nextTurn() {
         turn = (turn + 1) % 4;
-        System.out.println("Next turn: " + turn);
     }
 
     /**

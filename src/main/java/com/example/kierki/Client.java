@@ -68,7 +68,6 @@ public class Client {
         stage.setScene(roomsScene);
         out.writeUTF(nickname);
         out.flush();
-
     }
 
     /**
