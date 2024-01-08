@@ -267,6 +267,27 @@ public class Server {
         protected boolean validateCardMove(String chosenSymbol) {
             ArrayList<Card> clientDeck = takeCurrentRoom().getCardsFromClientID(clientId);
 
+            if((takeCurrentRoom().getRound()==2||takeCurrentRoom().getRound()==5||takeCurrentRoom().getRound()==7) && takeCurrentRoom().checkActualPlay() == 0){
+                if(Objects.equals(chosenSymbol, "Hearts")){
+                    List<String> availableColors = new ArrayList<>();
+                    for (Card card : clientDeck) {
+                        String symbol = card.getSymbol();
+                        if (!availableColors.contains(symbol)) {
+                            availableColors.add(symbol);
+                        }
+                    }
+                    if (availableColors.contains("Diamonds")||availableColors.contains("Clubs")||availableColors.contains("Spades")) {
+                        return false;
+                    }
+
+                    else {
+                        return true;
+                    }
+
+                }
+                else return true;
+            }
+
             String currentSymbol = takeCurrentRoom().getFirstCardOnTable().getSymbol();
 
             if (!Objects.equals(chosenSymbol, currentSymbol)) {
@@ -594,6 +615,7 @@ public class Server {
                 }
                 if (takeCurrentRoom().getClientsID().get(takeCurrentRoom().getTurn()) == clientId) {
                     if (takeCurrentRoom().checkActualPlay() == 0) {
+                        if (!validateCardMove(chosenSymbol)) continue;
                         Card card = new Card(chosenSymbol, chosenValue);
                         card.setClientID(clientId);
                         takeCurrentRoom().setActualCard(clientId, card);

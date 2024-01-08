@@ -55,7 +55,7 @@ public class Room implements Serializable {
         this.gameInProgress = false;
         this.idRoom = idRoom;
         this.amountOfPlayers = 0;
-        this.round = 1;
+        this.round = 2;
         this.firstCardOnTable = new Card("XXX", 99);
         initializeDeck();
     }
