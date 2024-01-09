@@ -355,15 +355,10 @@ public class Server {
          */
         protected void handleRound1(String currentSymbol) {
             ArrayList<Card> winCard = getCards();
-            System.out.println("1");
             winCard.removeIf(card -> !Objects.equals(currentSymbol, card.getSymbol()));
-            System.out.println("2");
             sortCards(winCard);
-            System.out.println("3");
             Card winningCard = winCard.get(0);
-            System.out.println("4");
             int winningClientID = takeWinnerID(winningCard);
-            System.out.println("5");
             takeCurrentRoom().setPoints(winningClientID, -20);
             takeCurrentRoom().nextTurnNumbered(winningClientID);
         }

@@ -143,7 +143,7 @@ public class ReceiverClient implements Runnable {
             takeRooms();
             checkOnOther();
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         try {
             startOfGame();

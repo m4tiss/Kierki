@@ -447,7 +447,7 @@ public class GameController {
                 try {
                     handleCardClick(clientCards.get(finalI).getValue(), clientCards.get(finalI).getSymbol());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
         }

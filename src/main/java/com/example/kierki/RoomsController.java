@@ -5,12 +5,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 import java.io.IOException;
 
-import java.awt.Color;
 
 /**
  * Klasa RoomsController zarządza logiką funkcjonalności związaną z pokojami w aplikacji Kierki.
@@ -72,7 +69,7 @@ public class RoomsController {
                 try {
                     client.sendChosenRoom(room.getIdRoom());
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
                 client.joinToRoom();
             });
